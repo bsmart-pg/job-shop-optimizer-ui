@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Schedule } from "@/lib/types";
-import { api } from "@/lib/api";
+import * as api from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 
 interface UseScheduleReturn {
