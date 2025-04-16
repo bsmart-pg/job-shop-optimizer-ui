@@ -3,8 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { DataSet } from 'vis-data';
 import { Timeline } from 'vis-timeline';
-import { format, parseISO } from 'date-fns';
-import { de } from 'date-fns/locale';
+import moment from 'moment';
 import { Line, Job } from '@/lib/types';
 
 // Add to index.css later
@@ -16,14 +15,6 @@ interface TimelineProps {
   view: 'byLine' | 'byJob';
   workCalendarFromDate: string;
 }
-
-// Custom formatDate function to avoid type errors
-const formatDate = (date: string | Date, formatStr: string) => {
-  if (typeof date === 'string') {
-    return format(parseISO(date), formatStr, { locale: de });
-  }
-  return format(date, formatStr, { locale: de });
-};
 
 export function TimelineView({ lines, jobs, view, workCalendarFromDate }: TimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,31 +43,7 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
           stack: false,
           zoomMin: 1000 * 60 * 60 * 12, // Half day in milliseconds
           locale: 'de',
-          moment: (date: any) => {
-            // Custom moment implementation that doesn't rely on toDate()
-            return {
-              format: (formatStr: string) => {
-                try {
-                  if (typeof date === 'string') {
-                    return formatStr === 'YYYY-MM-DD' 
-                      ? formatDate(date, 'yyyy-MM-dd')
-                      : formatDate(date, 'HH:mm');
-                  } else if (date instanceof Date) {
-                    return formatDate(date, formatStr === 'YYYY-MM-DD' ? 'yyyy-MM-dd' : 'HH:mm');
-                  } else {
-                    // For any other type, convert to ISO string and format
-                    const dateStr = new Date(date).toISOString();
-                    return formatStr === 'YYYY-MM-DD'
-                      ? formatDate(dateStr, 'yyyy-MM-dd')
-                      : formatDate(dateStr, 'HH:mm');
-                  }
-                } catch (error) {
-                  console.error('Date formatting error:', error, date);
-                  return 'Invalid date';
-                }
-              }
-            };
-          }
+          moment: moment // Use moment directly instead of custom implementation
         }
       );
 
