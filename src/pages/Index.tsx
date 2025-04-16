@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { Spinner } from "@/components/Spinner";
 
 const Index = () => {
   const {
@@ -63,29 +64,38 @@ const Index = () => {
               onViewChange={setSelectedView}
             />
             
-            <Tabs value={selectedView} onValueChange={setSelectedView} className="w-full">
-              <TabsContent value="byLine" className="mt-0">
-                <TimelineView 
-                  lines={schedule.lines} 
-                  jobs={schedule.jobs} 
-                  view="byLine"
-                  workCalendarFromDate={schedule.workCalendar.fromDate}
-                  loading={solving}
-                />
-              </TabsContent>
-              <TabsContent value="byJob" className="mt-0">
-                <TimelineView 
-                  lines={schedule.lines} 
-                  jobs={schedule.jobs} 
-                  view="byJob"
-                  workCalendarFromDate={schedule.workCalendar.fromDate}
-                  loading={solving}
-                />
-              </TabsContent>
-            </Tabs>
+            {solving ? (
+              <div className="card-loading-container">
+                <div className="flex flex-col items-center justify-center h-[500px] w-full border rounded-lg bg-card">
+                  <Spinner size="lg" />
+                  <p className="mt-4 text-muted-foreground">Optimizing schedule...</p>
+                </div>
+              </div>
+            ) : (
+              <Tabs value={selectedView} onValueChange={setSelectedView} className="w-full">
+                <TabsContent value="byLine" className="mt-0">
+                  <TimelineView 
+                    lines={schedule.lines} 
+                    jobs={schedule.jobs} 
+                    view="byLine"
+                    workCalendarFromDate={schedule.workCalendar.fromDate}
+                    loading={false}
+                  />
+                </TabsContent>
+                <TabsContent value="byJob" className="mt-0">
+                  <TimelineView 
+                    lines={schedule.lines} 
+                    jobs={schedule.jobs} 
+                    view="byJob"
+                    workCalendarFromDate={schedule.workCalendar.fromDate}
+                    loading={false}
+                  />
+                </TabsContent>
+              </Tabs>
+            )}
           </div>
           
-          <UnassignedJobs jobs={schedule.jobs} />
+          {!solving && <UnassignedJobs jobs={schedule.jobs} />}
         </>
       ) : null}
     </div>

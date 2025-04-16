@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Schedule } from "@/lib/types";
 import * as apiModule from "@/lib/api";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface UseScheduleReturn {
   schedule: Schedule | null;
@@ -36,7 +35,7 @@ const useSchedule = (): UseScheduleReturn => {
         try {
           const data = await apiModule.fetchSchedule(true); // Skip cache when polling
           
-          // If solver is no longer solving, update state
+          // If solver is no longer solving, update state and show final result
           if (data.solverStatus !== "SOLVING") {
             setSolving(false);
             setSchedule(data);
@@ -49,6 +48,10 @@ const useSchedule = (): UseScheduleReturn => {
             if (intervalId) {
               window.clearInterval(intervalId);
             }
+          } else {
+            // We're still solving, keep the intermediate result but don't display it yet
+            // Just update the data without changing the solving state
+            setSchedule(data);
           }
         } catch (err) {
           console.error("Error polling schedule:", err);
