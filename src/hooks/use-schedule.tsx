@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from "react";
 import { Schedule } from "@/lib/types";
-import * as api from "@/lib/api";
+import * as apiModule from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 
 interface UseScheduleReturn {
@@ -18,20 +19,61 @@ const useSchedule = (): UseScheduleReturn => {
   const [schedule, setSchedule] = useState<Schedule | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-	const [solving, setSolving] = useState<boolean>(false);
+  const [solving, setSolving] = useState<boolean>(false);
   const { toast } = useToast();
 
   useEffect(() => {
     refreshSchedule();
   }, []);
 
+  // Poll for updates when solving is in progress
+  useEffect(() => {
+    let intervalId: number | null = null;
+    
+    if (solving) {
+      // Start polling when solving
+      intervalId = window.setInterval(async () => {
+        try {
+          const data = await apiModule.fetchSchedule(true); // Skip cache when polling
+          
+          // If solver is no longer solving, update state
+          if (data.solverStatus !== "SOLVING") {
+            setSolving(false);
+            setSchedule(data);
+            toast({
+              title: "Calculation Complete",
+              description: `Final score: ${data.score}`,
+            });
+            
+            // Clear the interval when solving is complete
+            if (intervalId) {
+              window.clearInterval(intervalId);
+            }
+          }
+        } catch (err) {
+          console.error("Error polling schedule:", err);
+        }
+      }, 2000); // Poll every 2 seconds
+    }
+    
+    // Clean up interval on unmount or when solving changes
+    return () => {
+      if (intervalId) {
+        window.clearInterval(intervalId);
+      }
+    };
+  }, [solving, toast]);
+
   const refreshSchedule = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const data = await api.fetchSchedule();
+      const data = await apiModule.fetchSchedule();
       setSchedule(data);
+      
+      // Update solving state based on solver status
+      setSolving(data.solverStatus === "SOLVING");
     } catch (err) {
       console.error("Error fetching schedule:", err);
       toast({
@@ -45,41 +87,49 @@ const useSchedule = (): UseScheduleReturn => {
     }
   };
 
-	const startSolving = async () => {
-		setSolving(true);
-		try {
-			await api.startSolving();
-		} catch (error) {
-			console.error("Error starting solving:", error);
-			toast({
-				title: "Error",
-				description: "Failed to start solving.",
-				variant: "destructive",
-			});
-			setSolving(false);
-		}
-	};
+  const startSolving = async () => {
+    try {
+      await apiModule.startSolving();
+      setSolving(true);
+      toast({
+        title: "Calculation Started",
+        description: "The schedule optimization is now in progress.",
+      });
+    } catch (error) {
+      console.error("Error starting solving:", error);
+      toast({
+        title: "Error",
+        description: "Failed to start solving.",
+        variant: "destructive",
+      });
+    }
+  };
 
-	const stopSolving = async () => {
-		setSolving(false);
-		try {
-			await api.stopSolving();
-		} catch (error) {
-			console.error("Error stopping solving:", error);
-			toast({
-				title: "Error",
-				description: "Failed to stop solving.",
-				variant: "destructive",
-			});
-		}
-	};
+  const stopSolving = async () => {
+    try {
+      await apiModule.stopSolving();
+      setSolving(false);
+      refreshSchedule(); // Get the latest schedule after stopping
+      toast({
+        title: "Calculation Stopped",
+        description: "The schedule optimization has been stopped.",
+      });
+    } catch (error) {
+      console.error("Error stopping solving:", error);
+      toast({
+        title: "Error",
+        description: "Failed to stop solving.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const resetSchedule = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      await api.resetSchedule();
+      await apiModule.resetSchedule();
       refreshSchedule();
     } catch (error) {
       console.error("Error resetting schedule:", error);
@@ -98,10 +148,10 @@ const useSchedule = (): UseScheduleReturn => {
     schedule,
     loading,
     error,
-		solving,
+    solving,
     refreshSchedule,
-		startSolving,
-		stopSolving,
+    startSolving,
+    stopSolving,
     resetSchedule,
   };
 };

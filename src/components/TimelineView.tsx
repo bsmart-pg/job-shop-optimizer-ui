@@ -5,7 +5,13 @@ import { DataSet } from 'vis-data';
 import { Timeline } from 'vis-timeline';
 import moment from 'moment';
 import { Line, Job } from '@/lib/types';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Spinner } from '@/components/Spinner';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Add to index.css later
 import 'vis-timeline/styles/vis-timeline-graph2d.css';
@@ -15,9 +21,10 @@ interface TimelineProps {
   jobs: Job[];
   view: 'byLine' | 'byJob';
   workCalendarFromDate: string;
+  loading?: boolean;
 }
 
-export function TimelineView({ lines, jobs, view, workCalendarFromDate }: TimelineProps) {
+export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading = false }: TimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<Timeline | null>(null);
   const groupsRef = useRef<DataSet<any> | null>(null);
@@ -33,6 +40,9 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
       groupsRef.current = groups;
       itemsRef.current = items;
 
+      // Set moment's locale and configuration for vis-timeline
+      moment.locale('de');
+
       // Create timeline with appropriate type casting to avoid TS errors
       timelineRef.current = new Timeline(
         containerRef.current, 
@@ -44,7 +54,7 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
           stack: false,
           zoomMin: 1000 * 60 * 60 * 12, // Half day in milliseconds
           locale: 'de',
-          moment: moment // Use moment directly instead of custom implementation
+          moment: (date) => moment(date), // Use moment directly with proper wrapper function
         }
       );
 
@@ -74,7 +84,7 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
   }, []);
 
   useEffect(() => {
-    if (!timelineRef.current || !groupsRef.current || !itemsRef.current) return;
+    if (loading || !timelineRef.current || !groupsRef.current || !itemsRef.current) return;
 
     // Clear existing data
     groupsRef.current.clear();
@@ -140,29 +150,30 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
           className: "cleaning-item"
         });
         
-        // Add production item with truncated text and hover data attributes
+        // Add production item with truncated text and title for tooltip
         let content, tooltipContent;
         
         if (view === 'byLine') {
-          content = job.name;
-          tooltipContent = `<div class="tooltip-content">
-            <p class="font-medium">${job.name}</p>
+          content = `<div class="timeline-item-content" data-tooltip-id="${job.id}">${job.name}</div>`;
+          tooltipContent = `
+            <div>${job.name}</div>
             ${isBeforeReady ? '<span class="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 rounded-full px-2 py-0.5">Zu früh</span>' : ''}
             ${isAfterDue ? '<span class="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 rounded-full px-2 py-0.5">Zu spät</span>' : ''}
-          </div>`;
+          `;
         } else {
-          content = job.line.name;
-          tooltipContent = `<div class="tooltip-content">
-            <p class="font-medium">${job.line.name}</p>
+          content = `<div class="timeline-item-content" data-tooltip-id="${job.id}">${job.line.name}</div>`;
+          tooltipContent = `
+            <div>${job.line.name}</div>
             ${isBeforeReady ? '<span class="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 rounded-full px-2 py-0.5">Zu früh</span>' : ''}
             ${isAfterDue ? '<span class="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 rounded-full px-2 py-0.5">Zu spät</span>' : ''}
-          </div>`;
+          `;
         }
         
         itemsRef.current?.add({
           id: job.id,
           group: view === 'byLine' ? job.line.id : job.id,
-          content: `<div class="timeline-item-content" data-tooltip="${encodeURIComponent(tooltipContent)}">${content}</div>`,
+          content: content,
+          title: tooltipContent, // Native vis-timeline tooltip
           start: job.startProductionDateTime,
           end: job.endDateTime,
           className: (isBeforeReady || isAfterDue) 
@@ -178,6 +189,7 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
           id: job.id,
           group: job.id,
           content: "<div class='timeline-item-content'>Nicht zugewiesen</div>",
+          title: "Nicht zugewiesen", // Native vis-timeline tooltip
           start: job.readyDateTime,
           end: estimatedEndTime.toISOString(),
           className: "timeline-item unassigned-item"
@@ -204,44 +216,18 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
 
     // Redraw timeline
     timelineRef.current.redraw();
+  }, [lines, jobs, view, workCalendarFromDate, loading]);
 
-    // Set up tooltip functionality after items are rendered
-    setTimeout(() => {
-      const items = document.querySelectorAll('.timeline-item-content');
-      items.forEach(item => {
-        item.addEventListener('mouseenter', showTooltip);
-        item.addEventListener('mouseleave', hideTooltip);
-      });
-    }, 100);
-  }, [lines, jobs, view, workCalendarFromDate]);
-
-  // Functions to handle tooltip display
-  const showTooltip = (e: Event) => {
-    const target = e.currentTarget as HTMLElement;
-    const tooltipContent = target.getAttribute('data-tooltip');
-    
-    if (tooltipContent) {
-      const tooltip = document.createElement('div');
-      tooltip.className = 'timeline-tooltip';
-      tooltip.innerHTML = decodeURIComponent(tooltipContent);
-      
-      const rect = target.getBoundingClientRect();
-      tooltip.style.position = 'absolute';
-      tooltip.style.left = `${rect.left}px`;
-      tooltip.style.top = `${rect.bottom + window.scrollY + 5}px`;
-      
-      document.body.appendChild(tooltip);
-      target.setAttribute('data-tooltip-active', 'true');
-    }
-  };
-
-  const hideTooltip = (e: Event) => {
-    const target = e.currentTarget as HTMLElement;
-    target.removeAttribute('data-tooltip-active');
-    
-    const tooltips = document.querySelectorAll('.timeline-tooltip');
-    tooltips.forEach(tooltip => tooltip.remove());
-  };
+  if (loading) {
+    return (
+      <Card className="w-full mb-6 overflow-hidden border flex items-center justify-center" style={{ height }}>
+        <div className="flex flex-col items-center p-8">
+          <Spinner size="lg" />
+          <p className="mt-4 text-muted-foreground">Verarbeite Zeitplan...</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full mb-6 overflow-hidden border">

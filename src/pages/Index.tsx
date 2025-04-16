@@ -70,6 +70,7 @@ const Index = () => {
                   jobs={schedule.jobs} 
                   view="byLine"
                   workCalendarFromDate={schedule.workCalendar.fromDate}
+                  loading={solving}
                 />
               </TabsContent>
               <TabsContent value="byJob" className="mt-0">
@@ -78,6 +79,7 @@ const Index = () => {
                   jobs={schedule.jobs} 
                   view="byJob"
                   workCalendarFromDate={schedule.workCalendar.fromDate}
+                  loading={solving}
                 />
               </TabsContent>
             </Tabs>
