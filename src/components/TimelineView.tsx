@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataSet } from 'vis-data';
 import { Timeline } from 'vis-timeline';
 import moment from 'moment';
@@ -9,6 +9,9 @@ import { TimelineItem } from './timeline/TimelineItem';
 import { createTimelineGroups, createTimelineItems } from './timeline/timelineUtils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PaginationControls } from './pagination/PaginationControls';
+import { format, parseISO } from 'date-fns';
+import { de } from 'date-fns/locale';
+import { CalendarIcon, ClockIcon, AlertTriangleIcon, CheckIcon } from "lucide-react";
 
 // Add to index.css later
 import 'vis-timeline/styles/vis-timeline-graph2d.css';
@@ -27,6 +30,7 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
   const groupsRef = useRef<DataSet<any> | null>(null);
   const itemsRef = useRef<DataSet<any> | null>(null);
   const [height, setHeight] = useState('500px');
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   
   // Pagination for job view
   const [currentPage, setCurrentPage] = useState(1);
@@ -97,6 +101,8 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
     if (view === 'byJob') {
       setCurrentPage(1);
     }
+    // Clear selected job when view changes
+    setSelectedJob(null);
   }, [view]);
 
   useEffect(() => {
@@ -137,25 +143,144 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
     setCurrentPage(page);
   };
 
+  const handleJobSelect = (job: Job) => {
+    setSelectedJob(job);
+  };
+
+  const formatDuration = (durationInSeconds: number) => {
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+    return `${hours} h ${minutes} min`;
+  };
+
+  const isBeforeReady = selectedJob?.startProductionDateTime && 
+    new Date(selectedJob.startProductionDateTime) < new Date(selectedJob.readyDateTime);
+    
+  const isAfterDue = selectedJob?.endDateTime && 
+    new Date(selectedJob.endDateTime) > new Date(selectedJob.dueDateTime);
+
   return (
-    <Card className="w-full mb-6 overflow-hidden border">
-      <ScrollArea className="h-[600px]" type="always">
-        <div 
-          ref={containerRef} 
-          style={{ height, minHeight: '500px' }} 
-          className="timeline-container w-full"
-        />
-      </ScrollArea>
-      
-      {view === 'byJob' && totalPages > 1 && (
-        <div className="border-t border-border">
-          <PaginationControls 
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
+    <div className="space-y-4">
+      <Card className="w-full mb-2 overflow-hidden border">
+        <ScrollArea className="h-[600px]" type="always">
+          <div 
+            ref={containerRef} 
+            style={{ height, minHeight: '500px' }} 
+            className="timeline-container w-full"
           />
-        </div>
+        </ScrollArea>
+        
+        {view === 'byJob' && totalPages > 1 && (
+          <div className="border-t border-border">
+            <PaginationControls 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
+      </Card>
+      
+      {selectedJob && (
+        <Card className="w-full border">
+          <CardHeader className="pb-3">
+            <CardTitle>Job Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="p-1">
+              <h3 className="font-medium text-lg mb-2">{selectedJob.name}</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="space-y-2">
+                  {view === 'byLine' && selectedJob.product && (
+                    <p className="flex items-center">
+                      <span className="text-muted-foreground mr-1">Produkt:</span>
+                      <span>{selectedJob.product.name}</span>
+                    </p>
+                  )}
+                  
+                  {view === 'byJob' && selectedJob.line && (
+                    <p className="flex items-center">
+                      <span className="text-muted-foreground mr-1">Linie:</span>
+                      <span>{selectedJob.line.name}</span>
+                    </p>
+                  )}
+
+                  {selectedJob.product && (
+                    <p className="flex items-center">
+                      <span className="text-muted-foreground mr-1">Kompatible Maschinentypen:</span>
+                      <span>{selectedJob.product.compatibleMachines.join(', ')}</span>
+                    </p>
+                  )}
+                  
+                  <p className="flex items-center">
+                    <ClockIcon className="h-4 w-4 mr-1 text-muted-foreground" />
+                    <span className="text-muted-foreground mr-1">Produktionsdauer:</span>
+                    <span>{formatDuration(selectedJob.duration)}</span>
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="flex items-center">
+                    <CalendarIcon className="h-4 w-4 mr-1 text-muted-foreground" />
+                    <span className="text-muted-foreground mr-1">Bereit ab:</span>
+                    <span>{format(parseISO(selectedJob.readyDateTime), 'dd.MM.yyyy HH:mm', { locale: de })}</span>
+                  </p>
+                  
+                  <p className="flex items-center">
+                    <CalendarIcon className="h-4 w-4 mr-1 text-muted-foreground" />
+                    <span className="text-muted-foreground mr-1">Ideales Enddatum:</span>
+                    <span>{format(parseISO(selectedJob.idealEndDateTime), 'dd.MM.yyyy HH:mm', { locale: de })}</span>
+                  </p>
+                  
+                  <p className="flex items-center">
+                    <CalendarIcon className="h-4 w-4 mr-1 text-muted-foreground" />
+                    <span className="text-muted-foreground mr-1">Fälligkeitsdatum:</span>
+                    <span>{format(parseISO(selectedJob.dueDateTime), 'dd.MM.yyyy HH:mm', { locale: de })}</span>
+                  </p>
+
+                  {selectedJob.startProductionDateTime && (
+                    <p className="flex items-center">
+                      <CalendarIcon className="h-4 w-4 mr-1 text-muted-foreground" />
+                      <span className="text-muted-foreground mr-1">Produktionsstart:</span>
+                      <span>{format(parseISO(selectedJob.startProductionDateTime), 'dd.MM.yyyy HH:mm', { locale: de })}</span>
+                    </p>
+                  )}
+
+                  {selectedJob.endDateTime && (
+                    <p className="flex items-center">
+                      <CalendarIcon className="h-4 w-4 mr-1 text-muted-foreground" />
+                      <span className="text-muted-foreground mr-1">Produktionsende:</span>
+                      <span>{format(parseISO(selectedJob.endDateTime), 'dd.MM.yyyy HH:mm', { locale: de })}</span>
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-4 space-x-1">
+                {isBeforeReady && (
+                  <span className="inline-flex items-center text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 rounded-full px-2 py-0.5">
+                    <AlertTriangleIcon className="h-3 w-3 mr-1" />
+                    Zu früh gestartet
+                  </span>
+                )}
+                {isAfterDue && (
+                  <span className="inline-flex items-center text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 rounded-full px-2 py-0.5">
+                    <AlertTriangleIcon className="h-3 w-3 mr-1" />
+                    Zu spät beendet
+                  </span>
+                )}
+                {!isBeforeReady && !isAfterDue && selectedJob.endDateTime && (
+                  <span className="inline-flex items-center text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200 rounded-full px-2 py-0.5">
+                    <CheckIcon className="h-3 w-3 mr-1" />
+                    Optimal geplant
+                  </span>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
-    </Card>
+    </div>
   );
 }
