@@ -6,10 +6,11 @@ import {
   PopoverTrigger 
 } from "@/components/ui/popover";
 import { 
-  HoverCard, 
-  HoverCardContent, 
-  HoverCardTrigger 
-} from "@/components/ui/hover-card";
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 import { useState } from "react";
 
 interface TimelineItemProps {
@@ -48,27 +49,28 @@ export function TimelineItem({ job, view }: TimelineItemProps) {
   );
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <HoverCard>
+    <TooltipProvider>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <HoverCardTrigger asChild>
-            <div 
-              className={`timeline-item-content cursor-pointer ${isOpen ? 'timeline-item-selected' : ''}`}
-              onClick={() => setIsOpen(true)}
-            >
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div 
+                className={`timeline-item-content cursor-pointer ${isOpen ? 'timeline-item-selected' : ''}`}
+                onClick={() => setIsOpen(true)}
+              >
+                <span className="timeline-item-text">{displayText}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="z-[100] max-w-xs">
               {displayText}
-            </div>
-          </HoverCardTrigger>
+            </TooltipContent>
+          </Tooltip>
         </PopoverTrigger>
         
-        <HoverCardContent side="top" className="max-w-sm z-[100]">
-          {fullContent}
-        </HoverCardContent>
-        
-        <PopoverContent side="top" className="max-w-sm z-[100]">
+        <PopoverContent side="top" className="z-[100] max-w-sm">
           {fullContent}
         </PopoverContent>
-      </HoverCard>
-    </Popover>
+      </Popover>
+    </TooltipProvider>
   );
 }

@@ -88,6 +88,15 @@
   display: block;
 }
 
+.timeline-item-text {
+  @apply text-xs font-normal;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
 .timeline-item-selected {
   @apply font-medium;
   text-decoration: underline;

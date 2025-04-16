@@ -12,7 +12,7 @@ export function createTimelineGroups(groups: DataSet<any>, lines: Line[], jobs: 
         id: line.id,
         content: `<div>
           <h5 class="font-medium">${line.name}</h5>
-          <p class="text-sm text-muted-foreground">${line.machineTypeDisplayName}</p>
+          <p class="text-xs text-muted-foreground">${line.machineTypeDisplayName}</p>
         </div>`
       });
     });
@@ -57,7 +57,7 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
       items.add({
         id: `${job.id}_cleaning`,
         group: view === 'byLine' ? job.line.id : job.id,
-        content: "Rüsten",
+        content: `<div class="timeline-item-content"><span class="timeline-item-text">Rüsten</span></div>`,
         start: job.startCleaningDateTime,
         end: job.startProductionDateTime,
         className: "cleaning-item"

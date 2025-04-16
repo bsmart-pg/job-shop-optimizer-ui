@@ -52,7 +52,7 @@ export function PaginationControls({
       
       <div className="flex items-center space-x-1">
         <span className="px-2">
-          Seite {currentPage} von {totalPages}
+          Page {currentPage} of {totalPages}
         </span>
       </div>
       
