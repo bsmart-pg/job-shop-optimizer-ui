@@ -5,7 +5,6 @@ import { DataSet } from 'vis-data';
 import { Timeline } from 'vis-timeline';
 import moment from 'moment';
 import { Line, Job } from '@/lib/types';
-import { Spinner } from '@/components/Spinner';
 import { TimelineItem } from './timeline/TimelineItem';
 import { createTimelineGroups, createTimelineItems } from './timeline/timelineUtils';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -52,6 +51,10 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
           zoomMin: 1000 * 60 * 60 * 12, // Half day in milliseconds
           locale: 'de',
           moment: (date) => moment(date), // Use moment directly with proper wrapper function
+          tooltip: {
+            followMouse: false,
+            overflowMethod: 'cap'
+          }
         }
       );
 
@@ -101,14 +104,13 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
     // Calculate appropriate height based on number of groups
     // Set minimum height to 500px, but allow it to grow with number of groups
     const groupCount = groupsRef.current.length;
-    const dynamicHeight = Math.max(500, groupCount * 60);
+    const dynamicHeight = Math.max(500, groupCount * 65);
     setHeight(`${dynamicHeight}px`);
 
     // Redraw timeline
     timelineRef.current.redraw();
   }, [lines, jobs, view, workCalendarFromDate, loading]);
 
-  // Use ScrollArea to add scrollbar for very large timelines
   return (
     <Card className="w-full mb-6 overflow-hidden border">
       <ScrollArea className="h-[600px]" type="always">

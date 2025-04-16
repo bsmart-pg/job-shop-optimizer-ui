@@ -88,9 +88,19 @@
   display: block;
 }
 
+.timeline-item-selected {
+  @apply font-medium;
+  text-decoration: underline;
+}
+
 .vis-item {
   @apply border border-border;
   cursor: pointer;
+}
+
+.vis-item.vis-selected {
+  @apply border-2 border-yellow-500;
+  z-index: 10;
 }
 
 .normal-item {
@@ -119,6 +129,11 @@
   z-index: 50 !important;
 }
 
+/* Ensure that tooltip/popover content appears above everything */
+[data-radix-popper-content-wrapper][style*="position: fixed"] {
+  z-index: 100 !important;
+}
+
 .vis-timeline {
   border: none;
   overflow: visible;
@@ -129,4 +144,10 @@
 [data-radix-popover-content],
 [data-state="open"] {
   z-index: 100 !important;
+}
+
+/* Make timeline scroll container handle vertical overflow */
+.timeline-container {
+  height: 100%;
+  width: 100%;
 }
