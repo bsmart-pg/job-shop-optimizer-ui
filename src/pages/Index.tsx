@@ -1,12 +1,91 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from "react";
+import { JobShopHeader } from "@/components/JobShopHeader";
+import { FileUpload } from "@/components/FileUpload";
+import { ScheduleControls } from "@/components/ScheduleControls";
+import { TimelineView } from "@/components/TimelineView";
+import { UnassignedJobs } from "@/components/UnassignedJobs";
+import { useSchedule } from "@/hooks/use-schedule";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 const Index = () => {
+  const {
+    schedule,
+    loading,
+    error,
+    solving,
+    refreshSchedule,
+    startSolving,
+    stopSolving,
+    resetSchedule
+  } = useSchedule();
+  const [selectedView, setSelectedView] = useState<string>("byLine");
+
+  const handleUploadSuccess = () => {
+    resetSchedule();
+    refreshSchedule();
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="container py-6">
+      <JobShopHeader />
+      
+      <FileUpload onUploadSuccess={handleUploadSuccess} />
+      
+      {error && (
+        <Alert variant="destructive" className="my-6">
+          <ExclamationTriangleIcon className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      {loading && !schedule ? (
+        <div className="space-y-6 mt-6">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-[500px] w-full" />
+          <Skeleton className="h-48 w-full" />
+        </div>
+      ) : schedule ? (
+        <>
+          <div className="mt-6">
+            <ScheduleControls 
+              score={schedule.score}
+              solving={solving}
+              loading={loading}
+              onRefresh={refreshSchedule}
+              onSolve={startSolving}
+              onStopSolving={stopSolving}
+              selectedView={selectedView}
+              onViewChange={setSelectedView}
+            />
+            
+            <Tabs value={selectedView} onValueChange={setSelectedView} className="w-full">
+              <TabsContent value="byLine" className="mt-0">
+                <TimelineView 
+                  lines={schedule.lines} 
+                  jobs={schedule.jobs} 
+                  view="byLine"
+                  workCalendarFromDate={schedule.workCalendar.fromDate}
+                />
+              </TabsContent>
+              <TabsContent value="byJob" className="mt-0">
+                <TimelineView 
+                  lines={schedule.lines} 
+                  jobs={schedule.jobs} 
+                  view="byJob"
+                  workCalendarFromDate={schedule.workCalendar.fromDate}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
+          
+          <UnassignedJobs jobs={schedule.jobs} />
+        </>
+      ) : null}
     </div>
   );
 };

@@ -99,3 +99,67 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* vis-timeline styles */
+.vis-timeline {
+  border: none !important;
+  font-family: inherit !important;
+}
+
+.vis-item {
+  border-radius: 4px;
+  border-width: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.vis-item.vis-selected {
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 30%) !important;
+}
+
+.vis-time-axis .vis-grid.vis-saturday,
+.vis-time-axis .vis-grid.vis-sunday {
+  background: hsl(var(--muted));
+}
+
+.vis-panel.vis-center,
+.vis-panel.vis-left,
+.vis-panel.vis-right {
+  border-color: hsl(var(--border));
+}
+
+.vis-label {
+  font-weight: 500;
+}
+
+.timeline-container .vis-timeline {
+  overflow: hidden;
+  outline: none;
+}
+
+.vis-item .vis-item-overflow {
+  overflow: visible;
+}
+
+.vis-item .vis-item-content {
+  padding: 4px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vis-labelset .vis-label {
+  padding: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .vis-item .vis-item-content {
+    padding: 2px 4px;
+    font-size: 0.75rem;
+  }
+  
+  .vis-timeline {
+    font-size: 0.75rem;
+  }
+}
