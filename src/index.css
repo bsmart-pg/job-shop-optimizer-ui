@@ -84,10 +84,13 @@
 .timeline-item-content {
   @apply truncate text-sm px-2 py-1 whitespace-nowrap;
   max-width: 100%;
+  width: 100%;
+  display: block;
 }
 
 .vis-item {
   @apply border border-border;
+  cursor: pointer;
 }
 
 .normal-item {
@@ -118,4 +121,12 @@
 
 .vis-timeline {
   border: none;
+  overflow: visible;
+}
+
+/* Ensure radix popover is visible */
+.radix-popover-content,
+[data-radix-popover-content],
+[data-state="open"] {
+  z-index: 100 !important;
 }

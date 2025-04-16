@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Schedule } from "@/lib/types";
 import * as apiModule from "@/lib/api";
@@ -35,8 +36,9 @@ const useSchedule = (): UseScheduleReturn => {
         try {
           const data = await apiModule.fetchSchedule(true); // Skip cache when polling
           
-          // If solver is no longer solving, update state and show final result
-          if (data.solverStatus !== "SOLVING") {
+          // Only consider the solver as finished if the status is explicitly NOT_SOLVING or TERMINATED
+          // This ensures we don't prematurely show results during optimization
+          if (data.solverStatus === "NOT_SOLVING" || data.solverStatus === "TERMINATED") {
             setSolving(false);
             setSchedule(data);
             toast({

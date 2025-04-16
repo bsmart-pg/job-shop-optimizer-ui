@@ -8,6 +8,7 @@ import { Line, Job } from '@/lib/types';
 import { Spinner } from '@/components/Spinner';
 import { TimelineItem } from './timeline/TimelineItem';
 import { createTimelineGroups, createTimelineItems } from './timeline/timelineUtils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Add to index.css later
 import 'vis-timeline/styles/vis-timeline-graph2d.css';
@@ -97,21 +98,26 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
       }
     }
 
-    // Update height based on number of groups
+    // Calculate appropriate height based on number of groups
+    // Set minimum height to 500px, but allow it to grow with number of groups
     const groupCount = groupsRef.current.length;
-    setHeight(`${Math.max(500, groupCount * 60)}px`);
+    const dynamicHeight = Math.max(500, groupCount * 60);
+    setHeight(`${dynamicHeight}px`);
 
     // Redraw timeline
     timelineRef.current.redraw();
   }, [lines, jobs, view, workCalendarFromDate, loading]);
 
+  // Use ScrollArea to add scrollbar for very large timelines
   return (
     <Card className="w-full mb-6 overflow-hidden border">
-      <div 
-        ref={containerRef} 
-        style={{ height }} 
-        className="timeline-container w-full"
-      />
+      <ScrollArea className="h-[600px]" type="always">
+        <div 
+          ref={containerRef} 
+          style={{ height, minHeight: '500px' }} 
+          className="timeline-container w-full"
+        />
+      </ScrollArea>
     </Card>
   );
 }
