@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchSchedule, startSolving, stopSolving, resetSchedule } from '@/lib/api';
 import { Schedule } from '@/lib/types';
 import { useToast } from '@/components/ui/use-toast';
+import { toast as sonnerToast } from 'sonner';
 
 export function useSchedule() {
   const [schedule, setSchedule] = useState<Schedule | null>(null);
@@ -12,11 +13,11 @@ export function useSchedule() {
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
-  const refreshSchedule = useCallback(async () => {
+  const refreshSchedule = useCallback(async (useMockOnFailure = true) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchSchedule();
+      const data = await fetchSchedule(false, useMockOnFailure);
       setSchedule(data);
       setSolving(data.solverStatus !== null && data.solverStatus !== "NOT_SOLVING");
     } catch (err) {
@@ -27,6 +28,12 @@ export function useSchedule() {
         description: errorMessage,
         variant: "destructive"
       });
+      
+      // Also show a more visible toast for network errors
+      if (errorMessage.includes('Network error')) {
+        sonnerToast.error("Backend Connection Issue", 
+          "Could not connect to the backend server. Please ensure it's running at http://localhost:8080");
+      }
     } finally {
       setLoading(false);
     }

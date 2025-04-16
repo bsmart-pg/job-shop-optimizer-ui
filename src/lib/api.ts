@@ -31,9 +31,10 @@ const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30
     
     return response;
   } catch (error) {
+    console.error("API request failed:", error);
     // Enhance error message for network failures
     if (error instanceof TypeError && error.message === 'Failed to fetch') {
-      throw new Error(`Network error: Could not connect to server at ${API_BASE_URL}`);
+      throw new Error(`Network error: Could not connect to server at ${API_BASE_URL}. Please ensure the backend server is running.`);
     }
     throw error;
   }
@@ -44,48 +45,114 @@ let cachedSchedule: Schedule | null = null;
 let lastFetchTime = 0;
 const CACHE_TTL = 5000; // 5 seconds
 
-export const fetchSchedule = async (skipCache = false): Promise<Schedule> => {
+// Mock data for development when backend is not available
+const getMockSchedule = (): Schedule => ({
+  solverStatus: "NOT_SOLVING",
+  score: "0hard/0soft",
+  lines: [
+    { id: "line1", name: "Line 1", machineTypeDisplayName: "Type A" },
+    { id: "line2", name: "Line 2", machineTypeDisplayName: "Type B" }
+  ],
+  jobs: [
+    {
+      id: "job1",
+      name: "Job 1",
+      product: {
+        id: "prod1",
+        name: "Product 1",
+        compatibleMachines: ["Type A"]
+      },
+      duration: 7200, // 2 hours
+      readyDateTime: new Date().toISOString(),
+      idealEndDateTime: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
+      dueDateTime: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
+      line: null,
+      startCleaningDateTime: null,
+      startProductionDateTime: null,
+      endDateTime: null
+    }
+  ],
+  workCalendar: {
+    fromDate: new Date().toISOString().split('T')[0],
+    toDate: new Date(Date.now() + 86400000).toISOString().split('T')[0] // tomorrow
+  }
+});
+
+export const fetchSchedule = async (skipCache = false, useMock = false): Promise<Schedule> => {
   // Return cached data if available and fresh
   const now = Date.now();
   if (!skipCache && cachedSchedule && (now - lastFetchTime < CACHE_TTL)) {
     return cachedSchedule;
   }
   
-  const response = await fetchWithTimeout(`${API_BASE_URL}/schedule`);
-  const data = await response.json();
+  if (useMock) {
+    console.warn("Using mock schedule data");
+    const mockData = getMockSchedule();
+    cachedSchedule = mockData;
+    lastFetchTime = now;
+    return mockData;
+  }
   
-  // Update cache
-  cachedSchedule = data;
-  lastFetchTime = now;
-  
-  return data;
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/schedule`);
+    const data = await response.json();
+    
+    // Update cache
+    cachedSchedule = data;
+    lastFetchTime = now;
+    
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch schedule:", error);
+    // Fallback to mock data if specified
+    if (error instanceof Error && error.message.includes("Could not connect to server")) {
+      console.warn("Backend server not available, using mock data");
+      return getMockSchedule();
+    }
+    throw error;
+  }
 };
 
 export const startSolving = async (): Promise<void> => {
-  await fetchWithTimeout(`${API_BASE_URL}/schedule/solve`, {
-    method: "POST",
-  });
-  
-  // Invalidate cache when starting solving
-  cachedSchedule = null;
+  try {
+    await fetchWithTimeout(`${API_BASE_URL}/schedule/solve`, {
+      method: "POST",
+    });
+    
+    // Invalidate cache when starting solving
+    cachedSchedule = null;
+  } catch (error) {
+    console.error("Failed to start solving:", error);
+    throw error;
+  }
 };
 
 export const stopSolving = async (): Promise<void> => {
-  await fetchWithTimeout(`${API_BASE_URL}/schedule/stopSolving`, {
-    method: "POST",
-  });
-  
-  // Invalidate cache when stopping solving
-  cachedSchedule = null;
+  try {
+    await fetchWithTimeout(`${API_BASE_URL}/schedule/stopSolving`, {
+      method: "POST",
+    });
+    
+    // Invalidate cache when stopping solving
+    cachedSchedule = null;
+  } catch (error) {
+    console.error("Failed to stop solving:", error);
+    throw error;
+  }
 };
 
 export const resetSchedule = async (): Promise<void> => {
-  await fetchWithTimeout(`${API_BASE_URL}/schedule/reset`, {
-    method: "POST",
-  });
-  
-  // Invalidate cache when resetting schedule
-  cachedSchedule = null;
+  try {
+    await fetchWithTimeout(`${API_BASE_URL}/schedule/reset`, {
+      method: "POST",
+    });
+    
+    // Invalidate cache when resetting schedule
+    cachedSchedule = null;
+  } catch (error) {
+    console.error("Failed to reset schedule:", error);
+    throw error;
+  }
 };
 
 export const uploadFiles = async (files: File[]): Promise<string> => {
@@ -96,13 +163,18 @@ export const uploadFiles = async (files: File[]): Promise<string> => {
     }
   });
 
-  const response = await fetchWithTimeout(`${API_BASE_URL}/schedule/uploadFiles`, {
-    method: "POST",
-    body: formData,
-  }, 60000); // Longer timeout for uploads
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/schedule/uploadFiles`, {
+      method: "POST",
+      body: formData,
+    }, 60000); // Longer timeout for uploads
 
-  // Invalidate cache when uploading files
-  cachedSchedule = null;
-  
-  return await response.text();
+    // Invalidate cache when uploading files
+    cachedSchedule = null;
+    
+    return await response.text();
+  } catch (error) {
+    console.error("Failed to upload files:", error);
+    throw error;
+  }
 };

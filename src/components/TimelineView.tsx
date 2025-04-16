@@ -53,14 +53,27 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
           zoomMin: 1000 * 60 * 60 * 12, // Half day in milliseconds
           locale: 'de',
           moment: (date: any) => {
+            // Custom moment implementation that doesn't rely on toDate()
             return {
               format: (formatStr: string) => {
-                if (typeof date === 'string') {
-                  return formatStr === 'YYYY-MM-DD' 
-                    ? formatDate(date, 'yyyy-MM-dd')
-                    : formatDate(date, 'HH:mm');
+                try {
+                  if (typeof date === 'string') {
+                    return formatStr === 'YYYY-MM-DD' 
+                      ? formatDate(date, 'yyyy-MM-dd')
+                      : formatDate(date, 'HH:mm');
+                  } else if (date instanceof Date) {
+                    return formatDate(date, formatStr === 'YYYY-MM-DD' ? 'yyyy-MM-dd' : 'HH:mm');
+                  } else {
+                    // For any other type, convert to ISO string and format
+                    const dateStr = new Date(date).toISOString();
+                    return formatStr === 'YYYY-MM-DD'
+                      ? formatDate(dateStr, 'yyyy-MM-dd')
+                      : formatDate(dateStr, 'HH:mm');
+                  }
+                } catch (error) {
+                  console.error('Date formatting error:', error, date);
+                  return 'Invalid date';
                 }
-                return formatDate(date, 'HH:mm');
               }
             };
           }
@@ -206,7 +219,12 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
       const startDate = new Date(workCalendarFromDate);
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 1);
-      timelineRef.current.setWindow(startDate, endDate);
+      
+      try {
+        timelineRef.current.setWindow(startDate, endDate);
+      } catch (error) {
+        console.error('Error setting timeline window:', error);
+      }
     }
 
     // Update height based on number of groups
