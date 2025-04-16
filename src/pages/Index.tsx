@@ -37,7 +37,7 @@ const Index = () => {
       
       <FileUpload onUploadSuccess={handleUploadSuccess} />
       
-      <TimeframeForm onSubmitSuccess={refreshSchedule} />
+      <TimeframeForm onSubmitSuccess={handleUploadSuccess} />
       
       {error && (
         <Alert variant="destructive" className="my-6">

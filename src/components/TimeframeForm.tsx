@@ -93,13 +93,13 @@ export function TimeframeForm({ onSubmitSuccess }: TimeframeFormProps) {
   return (
     <Card className="w-full mb-6">
       <CardHeader className="pb-3">
-        <CardTitle>Set Schedule Timeframe</CardTitle>
+        <CardTitle>Zeitraum angeben</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label htmlFor="startDate" className="text-sm font-medium">
-              Start Date (DD.MM.YYYY)
+              Startdatum (DD.MM.YYYY)
             </label>
             <div className="relative">
               <Input
@@ -118,7 +118,7 @@ export function TimeframeForm({ onSubmitSuccess }: TimeframeFormProps) {
           
           <div className="space-y-2">
             <label htmlFor="endDate" className="text-sm font-medium">
-              End Date (DD.MM.YYYY)
+              Enddatum (DD.MM.YYYY)
             </label>
             <div className="relative">
               <Input
@@ -141,7 +141,7 @@ export function TimeframeForm({ onSubmitSuccess }: TimeframeFormProps) {
               disabled={isSubmitting}
               className="w-full md:w-auto"
             >
-              {isSubmitting ? "Setting timeframe..." : "Set Timeframe"}
+              {isSubmitting ? "setzen des Zeitraums..." : "Zeitraum setzen"}
             </Button>
             
             {validationErrors.general && (
