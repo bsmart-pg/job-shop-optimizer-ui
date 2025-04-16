@@ -178,3 +178,25 @@ export const uploadFiles = async (files: File[]): Promise<string> => {
     throw error;
   }
 };
+
+// New function to set the timeframe
+export const setTimeframe = async (startDate: string, endDate: string): Promise<void> => {
+  try {
+    await fetchWithTimeout(`${API_BASE_URL}/schedule/setTimeframe`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ 
+        startDate, 
+        endDate 
+      })
+    });
+    
+    // Invalidate cache when setting timeframe
+    cachedSchedule = null;
+  } catch (error) {
+    console.error("Failed to set timeframe:", error);
+    throw error;
+  }
+};

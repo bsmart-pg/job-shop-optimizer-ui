@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataSet } from 'vis-data';
@@ -76,21 +77,24 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
       );
       
       // Add click event listener to the timeline
+      // Using addEventListener instead of .on() method
       if (containerRef.current) {
-        timelineRef.current.on('click', (properties) => {
-          if (properties.item) {
-            // Get the clicked item ID
-            const itemId = properties.item;
-            
-            // If it's a cleaning item (ends with _cleaning), get the actual job ID
-            const jobId = itemId.toString().endsWith('_cleaning')
-              ? itemId.toString().replace('_cleaning', '')
-              : itemId.toString();
-            
-            // Find the job with this ID
-            const job = jobs.find(j => j.id === jobId);
-            if (job) {
-              setSelectedJob(job);
+        const container = containerRef.current;
+        container.addEventListener('click', (event) => {
+          if (!timelineRef.current) return;
+          
+          // Find the clicked item - we need to examine the event target
+          const target = event.target as HTMLElement;
+          const itemContainer = target.closest('[data-job-id]');
+          
+          if (itemContainer) {
+            const jobId = itemContainer.getAttribute('data-job-id');
+            if (jobId) {
+              // Find the job with this ID
+              const job = jobs.find(j => j.id === jobId);
+              if (job) {
+                setSelectedJob(job);
+              }
             }
           }
         });
