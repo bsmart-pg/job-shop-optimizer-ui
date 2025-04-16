@@ -85,13 +85,13 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
     return cachedSchedule;
   }
   
-  if (useMock) {
-    console.warn("Using mock schedule data");
-    const mockData = getMockSchedule();
-    cachedSchedule = mockData;
-    lastFetchTime = now;
-    return mockData;
-  }
+  // if (useMock) {
+  //   console.warn("Using mock schedule data");
+  //   const mockData = getMockSchedule();
+  //   cachedSchedule = mockData;
+  //   lastFetchTime = now;
+  //   return mockData;
+  // }
   
   try {
     const response = await fetchWithTimeout(`${API_BASE_URL}/schedule`);
