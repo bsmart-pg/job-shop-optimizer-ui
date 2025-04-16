@@ -5,6 +5,7 @@ import { DataSet } from 'vis-data';
 import { Timeline } from 'vis-timeline';
 import moment from 'moment';
 import { Line, Job } from '@/lib/types';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
 // Add to index.css later
 import 'vis-timeline/styles/vis-timeline-graph2d.css';
@@ -136,19 +137,22 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
           content: "Rüsten",
           start: job.startCleaningDateTime,
           end: job.startProductionDateTime,
-          className: "bg-amber-300/60 text-amber-900 dark:bg-amber-700/60 dark:text-amber-50 rounded-sm p-1"
+          className: "cleaning-item"
         });
         
-        // Add production item
-        let content;
+        // Add production item with truncated text and hover data attributes
+        let content, tooltipContent;
+        
         if (view === 'byLine') {
-          content = `<div>
+          content = job.name;
+          tooltipContent = `<div class="tooltip-content">
             <p class="font-medium">${job.name}</p>
             ${isBeforeReady ? '<span class="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 rounded-full px-2 py-0.5">Zu früh</span>' : ''}
             ${isAfterDue ? '<span class="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 rounded-full px-2 py-0.5">Zu spät</span>' : ''}
           </div>`;
         } else {
-          content = `<div>
+          content = job.line.name;
+          tooltipContent = `<div class="tooltip-content">
             <p class="font-medium">${job.line.name}</p>
             ${isBeforeReady ? '<span class="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 rounded-full px-2 py-0.5">Zu früh</span>' : ''}
             ${isAfterDue ? '<span class="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 rounded-full px-2 py-0.5">Zu spät</span>' : ''}
@@ -158,12 +162,12 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
         itemsRef.current?.add({
           id: job.id,
           group: view === 'byLine' ? job.line.id : job.id,
-          content: content,
+          content: `<div class="timeline-item-content" data-tooltip="${encodeURIComponent(tooltipContent)}">${content}</div>`,
           start: job.startProductionDateTime,
           end: job.endDateTime,
           className: (isBeforeReady || isAfterDue) 
-            ? "bg-red-100/80 border-l-4 border-red-500 dark:bg-red-900/30 dark:border-red-700" 
-            : "bg-blue-100/80 border-l-4 border-blue-500 dark:bg-blue-900/30 dark:border-blue-700"
+            ? "timeline-item error-item" 
+            : "timeline-item normal-item"
         });
       } else if (view === 'byJob') {
         // Unassigned job - only show in job view
@@ -173,10 +177,10 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
         itemsRef.current?.add({
           id: job.id,
           group: job.id,
-          content: "<div><p class='font-medium'>Nicht zugewiesen</p></div>",
+          content: "<div class='timeline-item-content'>Nicht zugewiesen</div>",
           start: job.readyDateTime,
           end: estimatedEndTime.toISOString(),
-          className: "bg-red-200/80 text-red-800 dark:bg-red-900/50 dark:text-red-100"
+          className: "timeline-item unassigned-item"
         });
       }
     });
@@ -200,7 +204,44 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate }: Timeli
 
     // Redraw timeline
     timelineRef.current.redraw();
+
+    // Set up tooltip functionality after items are rendered
+    setTimeout(() => {
+      const items = document.querySelectorAll('.timeline-item-content');
+      items.forEach(item => {
+        item.addEventListener('mouseenter', showTooltip);
+        item.addEventListener('mouseleave', hideTooltip);
+      });
+    }, 100);
   }, [lines, jobs, view, workCalendarFromDate]);
+
+  // Functions to handle tooltip display
+  const showTooltip = (e: Event) => {
+    const target = e.currentTarget as HTMLElement;
+    const tooltipContent = target.getAttribute('data-tooltip');
+    
+    if (tooltipContent) {
+      const tooltip = document.createElement('div');
+      tooltip.className = 'timeline-tooltip';
+      tooltip.innerHTML = decodeURIComponent(tooltipContent);
+      
+      const rect = target.getBoundingClientRect();
+      tooltip.style.position = 'absolute';
+      tooltip.style.left = `${rect.left}px`;
+      tooltip.style.top = `${rect.bottom + window.scrollY + 5}px`;
+      
+      document.body.appendChild(tooltip);
+      target.setAttribute('data-tooltip-active', 'true');
+    }
+  };
+
+  const hideTooltip = (e: Event) => {
+    const target = e.currentTarget as HTMLElement;
+    target.removeAttribute('data-tooltip-active');
+    
+    const tooltips = document.querySelectorAll('.timeline-tooltip');
+    tooltips.forEach(tooltip => tooltip.remove());
+  };
 
   return (
     <Card className="w-full mb-6 overflow-hidden border">
