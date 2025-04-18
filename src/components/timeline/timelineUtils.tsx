@@ -1,7 +1,6 @@
+
 import { Job, Line } from '@/lib/types';
 import { DataSet } from 'vis-data';
-import { TimelineItem } from './TimelineItem';
-import { renderToString } from 'react-dom/server';
 
 export function createTimelineGroups(groups: DataSet<any>, lines: Line[], jobs: Job[], view: 'byLine' | 'byJob') {
   if (view === 'byLine') {
@@ -62,8 +61,7 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
         className: "cleaning-item"
       });
       
-      // For production item, we'll use a simpler HTML structure instead of renderToString
-      // This avoids the issue with onSelect prop in server rendering
+      // Production item with data-job-id attribute for selection
       items.add({
         id: job.id,
         group: view === 'byLine' ? job.line.id : job.id,
@@ -81,7 +79,7 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
       const estimatedEndTime = new Date(job.readyDateTime);
       estimatedEndTime.setSeconds(estimatedEndTime.getSeconds() + job.duration);
       
-      // Similarly, use HTML string instead of renderToString
+      // Make sure to include the data-job-id attribute
       items.add({
         id: job.id,
         group: job.id,
