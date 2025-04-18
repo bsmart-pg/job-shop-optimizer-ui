@@ -17,7 +17,7 @@ interface TimelineProps {
 
 export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading = false }: TimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState('500px');
+  const [height] = useState('500px');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   
   // Pagination for job view
@@ -36,6 +36,11 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    setSelectedJob(null); // Reset selected job when changing pages
+  };
+
+  const handleJobSelect = (job: Job) => {
+    setSelectedJob(job);
   };
 
   return (
@@ -49,7 +54,7 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
             jobs={view === 'byJob' ? paginatedJobs : jobs}
             view={view}
             workCalendarFromDate={workCalendarFromDate}
-            onJobSelect={setSelectedJob}
+            onJobSelect={handleJobSelect}
           />
         </ScrollArea>
         

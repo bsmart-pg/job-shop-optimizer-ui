@@ -30,7 +30,12 @@ export function TimelineContainer({
   const itemsRef = useRef<DataSet<any> | null>(null);
 
   useEffect(() => {
-    if (!timelineRef.current && containerRef.current) {
+    // Clear existing timeline if any
+    if (containerRef.current && containerRef.current.hasChildNodes()) {
+      containerRef.current.innerHTML = '';
+    }
+    
+    if (containerRef.current) {
       const groups = new DataSet<any, any>();
       const items = new DataSet<any, any>();
       groupsRef.current = groups;
@@ -56,59 +61,66 @@ export function TimelineContainer({
         }
       );
 
-      if (containerRef.current) {
-        const container = containerRef.current;
-        container.addEventListener('click', (event) => {
-          if (!timelineRef.current) return;
-          
-          const target = event.target as HTMLElement;
-          const itemContainer = target.closest('[data-job-id]');
-          
-          if (itemContainer) {
-            const jobId = itemContainer.getAttribute('data-job-id');
-            if (jobId) {
-              const job = jobs.find(j => j.id === jobId);
-              if (job) {
-                onJobSelect(job);
-              }
+      // Create the groups and items
+      createTimelineGroups(groups, lines, jobs, view);
+      createTimelineItems(items, jobs, view);
+
+      // Set up click handler
+      containerRef.current.addEventListener('click', (event) => {
+        if (!timelineRef.current) return;
+        
+        const target = event.target as HTMLElement;
+        const itemContainer = target.closest('[data-job-id]');
+        
+        if (itemContainer) {
+          const jobId = itemContainer.getAttribute('data-job-id');
+          if (jobId) {
+            const job = jobs.find(j => j.id === jobId);
+            if (job) {
+              onJobSelect(job);
             }
           }
-        });
+        }
+      });
+
+      // Set initial window
+      if (workCalendarFromDate) {
+        const startDate = new Date(workCalendarFromDate);
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 1);
+        
+        try {
+          timelineRef.current.setWindow(startDate, endDate);
+        } catch (error) {
+          console.error('Error setting timeline window:', error);
+        }
       }
     }
 
+    // Cleanup function
     return () => {
       if (timelineRef.current) {
-        // @ts-ignore - vis-timeline doesn't export proper types for destroy
-        timelineRef.current.destroy();
-        timelineRef.current = null;
+        try {
+          // @ts-ignore - vis-timeline doesn't export proper types for destroy
+          timelineRef.current.destroy();
+          timelineRef.current = null;
+        } catch (error) {
+          console.error('Error destroying timeline:', error);
+        }
       }
     };
-  }, [jobs, onJobSelect]);
+  }, [containerRef, lines, jobs, view, workCalendarFromDate, onJobSelect]);
 
   useEffect(() => {
-    if (!timelineRef.current || !groupsRef.current || !itemsRef.current) return;
-
-    groupsRef.current.clear();
-    itemsRef.current.clear();
-
-    createTimelineGroups(groupsRef.current, lines, jobs, view);
-    createTimelineItems(itemsRef.current, jobs, view);
-
-    if (workCalendarFromDate) {
-      const startDate = new Date(workCalendarFromDate);
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + 1);
-      
+    // Force redraw when needed
+    if (timelineRef.current) {
       try {
-        timelineRef.current.setWindow(startDate, endDate);
+        timelineRef.current.redraw();
       } catch (error) {
-        console.error('Error setting timeline window:', error);
+        console.error('Error redrawing timeline:', error);
       }
     }
-
-    timelineRef.current.redraw();
-  }, [lines, jobs, view, workCalendarFromDate]);
+  }, [view]);
 
   return (
     <div 
