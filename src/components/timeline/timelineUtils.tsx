@@ -1,3 +1,4 @@
+
 import { Job, Line } from '@/lib/types';
 import { DataSet } from 'vis-data';
 import { TimelineItem } from './TimelineItem';
@@ -62,14 +63,16 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
         className: "cleaning-item"
       });
       
-      // For production item, we'll use a simpler HTML structure instead of renderToString
-      // This avoids the issue with onSelect prop in server rendering
+      // Generate the timeline item content
+      const timelineItemContent = renderToString(
+        <TimelineItem job={job} view={view} />
+      );
+      
+      // Add production item with truncated text and tooltip
       items.add({
         id: job.id,
         group: view === 'byLine' ? job.line.id : job.id,
-        content: `<div class="timeline-item-content cursor-pointer" data-job-id="${job.id}">
-          <span class="timeline-item-text">${view === 'byLine' ? job.name : (job.line ? job.line.name : "Unassigned")}</span>
-        </div>`,
+        content: timelineItemContent,
         start: job.startProductionDateTime,
         end: job.endDateTime,
         className: isJobOutOfBounds(job) 
@@ -81,13 +84,14 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
       const estimatedEndTime = new Date(job.readyDateTime);
       estimatedEndTime.setSeconds(estimatedEndTime.getSeconds() + job.duration);
       
-      // Similarly, use HTML string instead of renderToString
+      const timelineItemContent = renderToString(
+        <TimelineItem job={job} view={view} />
+      );
+
       items.add({
         id: job.id,
         group: job.id,
-        content: `<div class="timeline-item-content cursor-pointer" data-job-id="${job.id}">
-          <span class="timeline-item-text">${job.name}</span>
-        </div>`,
+        content: timelineItemContent,
         start: job.readyDateTime,
         end: estimatedEndTime.toISOString(),
         className: "timeline-item unassigned-item"

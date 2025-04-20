@@ -5,7 +5,6 @@ import { FileUpload } from "@/components/FileUpload";
 import { ScheduleControls } from "@/components/ScheduleControls";
 import { TimelineView } from "@/components/TimelineView";
 import { UnassignedJobs } from "@/components/UnassignedJobs";
-import { TimeframeForm } from "@/components/TimeframeForm";
 import { useSchedule } from "@/hooks/use-schedule";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -36,8 +35,6 @@ const Index = () => {
       <JobShopHeader />
       
       <FileUpload onUploadSuccess={handleUploadSuccess} />
-      
-      <TimeframeForm onSubmitSuccess={handleUploadSuccess} />
       
       {error && (
         <Alert variant="destructive" className="my-6">

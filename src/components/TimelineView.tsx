@@ -5,6 +5,7 @@ import { DataSet } from 'vis-data';
 import { Timeline } from 'vis-timeline';
 import moment from 'moment';
 import { Line, Job } from '@/lib/types';
+import { TimelineItem } from './timeline/TimelineItem';
 import { createTimelineGroups, createTimelineItems } from './timeline/timelineUtils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PaginationControls } from './pagination/PaginationControls';
@@ -75,30 +76,6 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
           }
         }
       );
-      
-      // Add click event listener to the timeline
-      // Using addEventListener instead of .on() method
-      if (containerRef.current) {
-        const container = containerRef.current;
-        container.addEventListener('click', (event) => {
-          if (!timelineRef.current) return;
-          
-          // Find the clicked item - we need to examine the event target
-          const target = event.target as HTMLElement;
-          const itemContainer = target.closest('[data-job-id]');
-          
-          if (itemContainer) {
-            const jobId = itemContainer.getAttribute('data-job-id');
-            if (jobId) {
-              // Find the job with this ID
-              const job = jobs.find(j => j.id === jobId);
-              if (job) {
-                setSelectedJob(job);
-              }
-            }
-          }
-        });
-      }
 
       // Listen for window resize
       const handleResize = () => {
@@ -117,7 +94,7 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
         }
       };
     }
-  }, [jobs]);
+  }, []);
 
   useEffect(() => {
     // Reset to page 1 when view changes
@@ -164,6 +141,10 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleJobSelect = (job: Job) => {
+    setSelectedJob(job);
   };
 
   const formatDuration = (durationInSeconds: number) => {
