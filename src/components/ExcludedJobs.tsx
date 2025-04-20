@@ -13,7 +13,7 @@ interface ExcludedJobsProps {
 
 export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9; // Changed from 6 to 9 items per page
+  const itemsPerPage = 9; // Fixed at 9 items per page
   
   const totalPages = Math.ceil(jobs.length / itemsPerPage);
   
@@ -24,9 +24,10 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
     }
   }, [totalPages, currentPage]);
   
-  // Calculate paginated jobs
+  // Calculate paginated jobs - ensure exactly itemsPerPage items are shown
   const paginatedJobs = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
+    // Strictly limit to itemsPerPage jobs
     return jobs.slice(startIndex, startIndex + itemsPerPage);
   }, [jobs, currentPage, itemsPerPage]);
   
@@ -55,6 +56,7 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Render only the paginated jobs */}
               {paginatedJobs.map((job) => (
                 <Card key={job.id} className="border">
                   <CardContent className="p-4">
