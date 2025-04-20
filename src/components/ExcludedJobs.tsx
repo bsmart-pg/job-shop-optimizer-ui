@@ -85,7 +85,7 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
                 </Card>
               ))}
               
-              {/* Add skeleton loading placeholders to ensure consistent grid */}
+              {/* Add skeleton loading placeholders for partially filled rows */}
               {paginatedJobs.length > 0 && paginatedJobs.length < itemsPerPage && (
                 Array.from({ length: itemsPerPage - paginatedJobs.length }).map((_, index) => (
                   <div key={`skeleton-${index}`} className="hidden md:block">
