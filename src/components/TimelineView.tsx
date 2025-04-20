@@ -1,9 +1,11 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataSet } from 'vis-data';
 import { Timeline } from 'vis-timeline';
 import moment from 'moment';
 import { Line, Job } from '@/lib/types';
+import { TimelineItem } from './timeline/TimelineItem';
 import { createTimelineGroups, createTimelineItems } from './timeline/timelineUtils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PaginationControls } from './pagination/PaginationControls';
@@ -74,27 +76,6 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
           }
         }
       );
-      
-      // Add click event listener to the timeline
-      if (containerRef.current) {
-        timelineRef.current.on('click', (properties) => {
-          if (properties.item) {
-            // Get the clicked item ID
-            const itemId = properties.item;
-            
-            // If it's a cleaning item (ends with _cleaning), get the actual job ID
-            const jobId = itemId.toString().endsWith('_cleaning')
-              ? itemId.toString().replace('_cleaning', '')
-              : itemId.toString();
-            
-            // Find the job with this ID
-            const job = jobs.find(j => j.id === jobId);
-            if (job) {
-              setSelectedJob(job);
-            }
-          }
-        });
-      }
 
       // Listen for window resize
       const handleResize = () => {
@@ -113,7 +94,7 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
         }
       };
     }
-  }, [jobs]);
+  }, []);
 
   useEffect(() => {
     // Reset to page 1 when view changes
@@ -160,6 +141,10 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleJobSelect = (job: Job) => {
+    setSelectedJob(job);
   };
 
   const formatDuration = (durationInSeconds: number) => {
