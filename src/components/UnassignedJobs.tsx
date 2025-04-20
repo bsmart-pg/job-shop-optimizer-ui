@@ -13,7 +13,7 @@ interface UnassignedJobsProps {
 
 export function UnassignedJobs({ jobs }: UnassignedJobsProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6; // Items per page for pagination
+  const itemsPerPage = 9; // Changed from 6 to 9 items per page
   
   // Memoize the filtered jobs list to prevent unnecessary recomputation
   const unassignedJobs = useMemo(() => {
@@ -60,7 +60,7 @@ export function UnassignedJobs({ jobs }: UnassignedJobsProps) {
           <p className="text-center text-muted-foreground py-4">Keine offenen Jobs.</p>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {paginatedJobs.map((job) => (
                 <Card key={job.id} className="border">
                   <CardContent className="p-4">

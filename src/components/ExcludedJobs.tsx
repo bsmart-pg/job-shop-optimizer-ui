@@ -13,7 +13,7 @@ interface ExcludedJobsProps {
 
 export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 9; // Changed from 6 to 9 items per page
   
   const totalPages = Math.ceil(jobs.length / itemsPerPage);
   
@@ -54,7 +54,7 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
           <p className="text-center text-muted-foreground py-4">Keine ausgeschlossenen Jobs.</p>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {paginatedJobs.map((job) => (
                 <Card key={job.id} className="border">
                   <CardContent className="p-4">
@@ -85,6 +85,7 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
                 </Card>
               ))}
               
+              {/* Add skeleton loading placeholders to ensure consistent grid */}
               {paginatedJobs.length > 0 && paginatedJobs.length < itemsPerPage && (
                 Array.from({ length: itemsPerPage - paginatedJobs.length }).map((_, index) => (
                   <div key={`skeleton-${index}`} className="hidden md:block">
