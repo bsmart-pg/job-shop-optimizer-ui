@@ -1,10 +1,11 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { RefreshCw, Play, Square } from "lucide-react";
+import { RefreshCw, Play, Square, Download } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TimeframeSelector } from "@/components/TimeframeSelector";
+import { exportToExcel } from "@/lib/excelExport";
+import { toast } from "@/components/ui/sonner";
 
 interface ScheduleControlsProps {
   score: string | null;
@@ -61,6 +62,22 @@ export function ScheduleControls({
               Berechnen
             </Button>
           )}
+          
+          <Button
+            variant="outline"
+            onClick={() => {
+              try {
+                exportToExcel();
+                toast.success("Timeline erfolgreich exportiert");
+              } catch (error) {
+                toast.error("Fehler beim Exportieren der Timeline");
+              }
+            }}
+            disabled={loading}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Exportieren
+          </Button>
           
           {loading ? (
             <Skeleton className="h-9 w-32" />

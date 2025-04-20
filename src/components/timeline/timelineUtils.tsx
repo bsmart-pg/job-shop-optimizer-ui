@@ -59,11 +59,14 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
         content: `<div class="timeline-item-content"><span class="timeline-item-text">Rüsten</span></div>`,
         start: job.startCleaningDateTime,
         end: job.startProductionDateTime,
-        className: "cleaning-item"
+        className: "cleaning-item",
+        dataAttributes: {
+          'data-start': job.startCleaningDateTime,
+          'data-end': job.startProductionDateTime
+        }
       });
       
-      // For production item, we'll use a simpler HTML structure instead of renderToString
-      // This avoids the issue with onSelect prop in server rendering
+      // Add production item
       items.add({
         id: job.id,
         group: view === 'byLine' ? job.line.id : job.id,
@@ -74,7 +77,11 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
         end: job.endDateTime,
         className: isJobOutOfBounds(job) 
           ? "timeline-item error-item" 
-          : "timeline-item normal-item"
+          : "timeline-item normal-item",
+        dataAttributes: {
+          'data-start': job.startProductionDateTime,
+          'data-end': job.endDateTime
+        }
       });
     } else if (view === 'byJob') {
       // Unassigned job - only show in job view
