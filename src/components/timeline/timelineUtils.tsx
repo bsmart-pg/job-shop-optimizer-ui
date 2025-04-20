@@ -55,7 +55,7 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
       items.add({
         id: `${job.id}_cleaning`,
         group: view === 'byLine' ? job.line.id : job.id,
-        content: `<div class="timeline-item-content"><span class="timeline-item-text">Rüsten</span></div>`,
+        content: `<div class="timeline-item-content" data-job-id="${job.id}"><span class="timeline-item-text">Rüsten</span></div>`,
         start: job.startCleaningDateTime,
         end: job.startProductionDateTime,
         className: "cleaning-item"

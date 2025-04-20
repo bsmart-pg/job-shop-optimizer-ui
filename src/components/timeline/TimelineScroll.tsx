@@ -9,7 +9,7 @@ interface TimelineScrollProps {
 
 export function TimelineScroll({ children, height }: TimelineScrollProps) {
   return (
-    <ScrollArea className="h-[600px]" type="always">
+    <ScrollArea className={`h-[${height}]`} style={{ height }} type="always">
       {children}
     </ScrollArea>
   );

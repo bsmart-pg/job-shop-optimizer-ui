@@ -30,6 +30,11 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
     setCurrentPage(page);
   };
 
+  const handleJobSelect = (job: Job) => {
+    console.log("Job selected in TimelineView:", job);
+    setSelectedJob(job);
+  };
+
   return (
     <div className="space-y-4">
       <TimelineContainer 
@@ -38,7 +43,7 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
         view={view}
         workCalendarFromDate={workCalendarFromDate}
         loading={loading}
-        onJobSelect={setSelectedJob}
+        onJobSelect={handleJobSelect}
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}

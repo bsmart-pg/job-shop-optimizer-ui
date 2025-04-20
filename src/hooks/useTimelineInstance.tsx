@@ -52,11 +52,17 @@ export function useTimelineInstance({ onJobSelect, jobs }: UseTimelineInstancePr
         if (itemContainer) {
           const jobId = itemContainer.getAttribute('data-job-id');
           if (jobId) {
+            console.log("Job click detected, ID:", jobId);
             const job = jobs.find(j => j.id === jobId);
             if (job) {
+              console.log("Job found, calling onJobSelect with:", job);
               onJobSelect(job);
+            } else {
+              console.log("Job not found in jobs array!");
             }
           }
+        } else {
+          console.log("Click did not hit an element with data-job-id attribute");
         }
       };
       
