@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { JobShopHeader } from "@/components/JobShopHeader";
 import { FileUpload } from "@/components/FileUpload";
@@ -11,6 +10,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Spinner } from "@/components/Spinner";
+import { ExcludedJobs } from "@/components/ExcludedJobs";
 
 const Index = () => {
   const {
@@ -95,7 +95,12 @@ const Index = () => {
             )}
           </div>
           
-          {!solving && <UnassignedJobs jobs={schedule.jobs} />}
+          {!solving && (
+            <>
+              <UnassignedJobs jobs={schedule.jobs} />
+              <ExcludedJobs jobs={schedule.excludedJobs || []} />
+            </>
+          )}
         </>
       ) : null}
     </div>

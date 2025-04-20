@@ -35,6 +35,7 @@ export interface Schedule {
   score: string | null;
   lines: Line[];
   jobs: Job[];
+  excludedJobs: Job[];
   workCalendar: WorkCalendar;
 }
 
