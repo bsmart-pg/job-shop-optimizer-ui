@@ -24,6 +24,8 @@ export const exportToExcel = async () => {
         'Start Cleaning': job.startCleaningDateTime ? format(new Date(job.startCleaningDateTime), 'dd.MM.yyyy HH:mm', { locale: de }) : '',
         'Start Production': job.startProductionDateTime ? format(new Date(job.startProductionDateTime), 'dd.MM.yyyy HH:mm', { locale: de }) : '',
         'End': job.endDateTime ? format(new Date(job.endDateTime), 'dd.MM.yyyy HH:mm', { locale: de }) : '',
+        'Cleaning Required': job.startCleaningDateTime && job.startProductionDateTime && 
+          new Date(job.startCleaningDateTime).getTime() !== new Date(job.startProductionDateTime).getTime() ? 'Yes' : 'No'
       }));
     
     // Debug output
@@ -49,4 +51,3 @@ export const exportToExcel = async () => {
     alert('There was an error exporting the timeline data. Please check the console for details.');
   }
 };
-
