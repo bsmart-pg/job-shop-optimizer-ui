@@ -1,4 +1,3 @@
-
 import { Job, Line } from '@/lib/types';
 import { DataSet } from 'vis-data';
 import { TimelineItem } from './TimelineItem';
@@ -60,38 +59,42 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
         content: `<div class="timeline-item-content"><span class="timeline-item-text">Rüsten</span></div>`,
         start: job.startCleaningDateTime,
         end: job.startProductionDateTime,
-        className: "cleaning-item"
+        className: "cleaning-item",
+        dataAttributes: {
+          'data-start': job.startCleaningDateTime,
+          'data-end': job.startProductionDateTime
+        }
       });
       
-      // Generate the timeline item content
-      const timelineItemContent = renderToString(
-        <TimelineItem job={job} view={view} />
-      );
-      
-      // Add production item with truncated text and tooltip
+      // Add production item
       items.add({
         id: job.id,
         group: view === 'byLine' ? job.line.id : job.id,
-        content: timelineItemContent,
+        content: `<div class="timeline-item-content cursor-pointer" data-job-id="${job.id}">
+          <span class="timeline-item-text">${view === 'byLine' ? job.name : (job.line ? job.line.name : "Unassigned")}</span>
+        </div>`,
         start: job.startProductionDateTime,
         end: job.endDateTime,
         className: isJobOutOfBounds(job) 
           ? "timeline-item error-item" 
-          : "timeline-item normal-item"
+          : "timeline-item normal-item",
+        dataAttributes: {
+          'data-start': job.startProductionDateTime,
+          'data-end': job.endDateTime
+        }
       });
     } else if (view === 'byJob') {
       // Unassigned job - only show in job view
       const estimatedEndTime = new Date(job.readyDateTime);
       estimatedEndTime.setSeconds(estimatedEndTime.getSeconds() + job.duration);
       
-      const timelineItemContent = renderToString(
-        <TimelineItem job={job} view={view} />
-      );
-
+      // Similarly, use HTML string instead of renderToString
       items.add({
         id: job.id,
         group: job.id,
-        content: timelineItemContent,
+        content: `<div class="timeline-item-content cursor-pointer" data-job-id="${job.id}">
+          <span class="timeline-item-text">${job.name}</span>
+        </div>`,
         start: job.readyDateTime,
         end: estimatedEndTime.toISOString(),
         className: "timeline-item unassigned-item"
