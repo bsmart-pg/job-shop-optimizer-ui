@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { RefreshCw, Play, Square } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TimeframeSelector } from "@/components/TimeframeSelector";
 
 interface ScheduleControlsProps {
   score: string | null;
@@ -27,7 +28,9 @@ export function ScheduleControls({
   onViewChange,
 }: ScheduleControlsProps) {
   return (
-    <Card className="p-4 mb-6">
+    <Card className="p-4 mb-6 space-y-4">
+      <TimeframeSelector onTimeframeSet={onRefresh} />
+      
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex gap-2">
           <Button 

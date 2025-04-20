@@ -1,4 +1,3 @@
-
 import { Schedule } from "./types";
 
 // You can change this in production
@@ -175,6 +174,31 @@ export const uploadFiles = async (files: File[]): Promise<string> => {
     return await response.text();
   } catch (error) {
     console.error("Failed to upload files:", error);
+    throw error;
+  }
+};
+
+export const setTimeframe = async (startDate: string, endDate: string): Promise<void> => {
+  try {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/schedule/setTimeframe`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        startDate,
+        endDate
+      })
+    });
+    
+    // Invalidate cache when changing timeframe
+    cachedSchedule = null;
+    
+    if (!response.ok) {
+      throw new Error('Failed to set timeframe');
+    }
+  } catch (error) {
+    console.error("Failed to set timeframe:", error);
     throw error;
   }
 };
