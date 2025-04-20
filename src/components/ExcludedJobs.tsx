@@ -1,7 +1,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { Job } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { PaginationControls } from './pagination/PaginationControls';
@@ -53,6 +53,9 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
         <CardTitle className="flex justify-between items-center">
           <span>Ausgeschlossene Jobs ({excludedJobs.length})</span>
         </CardTitle>
+        <CardDescription className="text-lg">
+          Für Produkte dieser Jobs beträgt die Produktionszeit für das akkumulierte Auftragsvolumen weniger als 2h.
+        </CardDescription>
       </CardHeader>
       
       <CardContent>
