@@ -1,3 +1,4 @@
+
 declare module 'vis-timeline' {
   import { DataSet, DataView } from 'vis-data';
 
@@ -16,9 +17,6 @@ declare module 'vis-timeline' {
     redraw(): void;
     fit(options?: any): void;
     destroy(): void;
-    
-    on(event: string, callback: (properties: any) => void): void;
-    off(event: string, callback: (properties: any) => void): void;
   }
 
   export interface TimelineOptions {
