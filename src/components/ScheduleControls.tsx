@@ -39,7 +39,7 @@ export function ScheduleControls({
             disabled={loading}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            Reload
+            Neu laden
           </Button>
           
           {solving ? (
