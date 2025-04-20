@@ -26,7 +26,9 @@ export const exportToExcel = async () => {
         'End': job.endDateTime ? format(new Date(job.endDateTime), 'dd.MM.yyyy HH:mm', { locale: de }) : '',
         'Due Date': job.dueDateTime ? format(new Date(job.dueDateTime), 'dd.MM.yyyy HH:mm', { locale: de }) : '',
         'Cleaning Required': job.startCleaningDateTime && job.startProductionDateTime && 
-          new Date(job.startCleaningDateTime).getTime() !== new Date(job.startProductionDateTime).getTime() ? 'Yes' : 'No'
+          new Date(job.startCleaningDateTime).getTime() !== new Date(job.startProductionDateTime).getTime() ? 'Yes' : 'No',
+        'On Time': job.endDateTime && job.dueDateTime && 
+          new Date(job.endDateTime) <= new Date(job.dueDateTime) ? 'Yes' : 'No'
       }));
     
     // Debug output
