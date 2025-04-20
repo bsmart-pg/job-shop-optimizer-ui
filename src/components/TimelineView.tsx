@@ -76,28 +76,9 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
         }
       );
       
-      // Add click event listener to the timeline
-      // Using addEventListener instead of .on() method
+      // Add click event listener to the timeline container
       if (containerRef.current) {
-        const container = containerRef.current;
-        container.addEventListener('click', (event) => {
-          if (!timelineRef.current) return;
-          
-          // Find the clicked item - we need to examine the event target
-          const target = event.target as HTMLElement;
-          const itemContainer = target.closest('[data-job-id]');
-          
-          if (itemContainer) {
-            const jobId = itemContainer.getAttribute('data-job-id');
-            if (jobId) {
-              // Find the job with this ID
-              const job = jobs.find(j => j.id === jobId);
-              if (job) {
-                setSelectedJob(job);
-              }
-            }
-          }
-        });
+        containerRef.current.addEventListener('click', handleTimelineClick);
       }
 
       // Listen for window resize
@@ -110,6 +91,9 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
       window.addEventListener('resize', handleResize);
       return () => {
         window.removeEventListener('resize', handleResize);
+        if (containerRef.current) {
+          containerRef.current.removeEventListener('click', handleTimelineClick);
+        }
         if (timelineRef.current) {
           // @ts-ignore - vis-timeline doesn't export proper types for destroy
           timelineRef.current.destroy();
@@ -118,6 +102,26 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
       };
     }
   }, [jobs]);
+
+  // Handle timeline item clicks
+  const handleTimelineClick = (event: MouseEvent) => {
+    if (!timelineRef.current) return;
+    
+    // Find the clicked item - we need to examine the event target
+    const target = event.target as HTMLElement;
+    const itemContainer = target.closest('[data-job-id]');
+    
+    if (itemContainer) {
+      const jobId = itemContainer.getAttribute('data-job-id');
+      if (jobId) {
+        // Find the job with this ID
+        const job = jobs.find(j => j.id === jobId);
+        if (job) {
+          setSelectedJob(job);
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     // Reset to page 1 when view changes
