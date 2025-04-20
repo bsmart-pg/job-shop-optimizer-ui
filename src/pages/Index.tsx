@@ -98,7 +98,7 @@ const Index = () => {
           {!solving && (
             <>
               <UnassignedJobs jobs={schedule.jobs} />
-              <ExcludedJobs jobs={schedule.excludedJobs || []} />
+              <ExcludedJobs jobs={schedule.excludedJobs} />
             </>
           )}
         </>
