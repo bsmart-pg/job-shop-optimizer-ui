@@ -2,9 +2,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
@@ -13,16 +11,27 @@ export default defineConfig(({ mode }) => ({
       '/api': {
         target: process.env.BACKEND_URL || 'http://backend_timefold:8081',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => {
+          console.log('Original path:', path);  // Add this line for more logging
+          return path.replace(/^\/api/, '');
+        },
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
-            console.log('proxy error', err);
+            console.error('Detailed proxy error:', err);  // Enhanced error logging
           });
           proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Sending Request:', req.method, req.url);
+            console.log('Sending Request to Backend:', {
+              method: req.method,
+              url: req.url,
+              headers: proxyReq.getHeaders()  // Log request headers
+            });
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('Received Response from:', req.url, 'Status:', proxyRes.statusCode);
+            console.log('Backend Response:', {
+              url: req.url,
+              status: proxyRes.statusCode,
+              headers: proxyRes.headers
+            });
           });
         }
       }
