@@ -15,6 +15,9 @@ RUN npm run build
 # Stage 2: Serve
 FROM node:20-alpine AS runner
 
+ARG BACKEND_URL=http://localhost:8080
+ENV VITE_BACKEND_URL=$BACKEND_URL
+
 # Install a lightweight static server
 RUN npm i -g serve
 
