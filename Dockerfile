@@ -35,3 +35,29 @@ CMD ["serve", "-s", "dist", "-l", "8080"]
 # The frontend will connect to http://backend_timefold:8081 by default
 # Access the app at http://localhost:8080
 
+
+```yaml
+# Example docker-compose.yml
+version: '3'
+services:
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - BACKEND_URL=http://backend_timefold:8081
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+  
+  backend_timefold:
+    # Your backend service configuration
+    ports:
+      - "8081:8081"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+```
+
