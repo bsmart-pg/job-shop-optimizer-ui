@@ -12,23 +12,39 @@ export const timeoutPromise = (ms: number): Promise<never> => {
 // Enhanced fetch with timeout and better error handling
 export const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30000) => {
   try {
-    console.log(`Making request to: ${url}`);
+    console.log(`----------------------------------------`);
+    console.log(`API REQUEST: ${options?.method || 'GET'} ${url}`);
+    if (options?.body) {
+      console.log(`REQUEST BODY:`, options.body);
+    }
+    if (options?.headers) {
+      console.log(`REQUEST HEADERS:`, options.headers);
+    }
+    
     const response = await Promise.race([
       fetch(url, options),
       timeoutPromise(timeout)
     ]);
     
-    console.log(`Response status: ${response.status} for ${url}`);
+    console.log(`API RESPONSE: ${response.status} for ${url}`);
+    
+    // Log response headers
+    const headers: Record<string, string> = {};
+    response.headers.forEach((value, key) => {
+      headers[key] = value;
+    });
+    console.log(`RESPONSE HEADERS:`, headers);
     
     if (!response.ok) {
       try {
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
           const errorData = await response.json();
+          console.error(`JSON ERROR RESPONSE:`, errorData);
           throw new Error(errorData.message || `HTTP error ${response.status}`);
         } else {
           const text = await response.text();
-          console.error(`Non-JSON error response: ${text}`);
+          console.error(`NON-JSON ERROR RESPONSE:`, text);
           throw new Error(`HTTP error ${response.status}`);
         }
       } catch (e) {
@@ -39,9 +55,10 @@ export const fetchWithTimeout = async (url: string, options?: RequestInit, timeo
       }
     }
     
+    console.log(`----------------------------------------`);
     return response;
   } catch (error) {
-    console.error("API request failed:", error);
+    console.error("API REQUEST FAILED:", error);
     if (error instanceof TypeError && error.message === 'Failed to fetch') {
       throw new Error(`Network error: Could not connect to server at ${API_BASE_URL}. Please ensure the backend server is running.`);
     }
