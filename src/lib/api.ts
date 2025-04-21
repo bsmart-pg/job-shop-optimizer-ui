@@ -1,8 +1,8 @@
 
 import { Schedule } from "./types";
 
-// You can change this in production using VITE_BACKEND_URL environment variable
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+// Use /api as the base URL which will be proxied to the backend
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "/api";
 
 // Log the API base URL when the module is loaded to verify configuration
 console.log(`API is configured to connect to: ${API_BASE_URL}`);
