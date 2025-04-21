@@ -1,7 +1,7 @@
 import { Schedule } from "./types";
 
-// You can change this in production
-const API_BASE_URL = "http://localhost:8080";
+// You can change this in production using VITE_BACKEND_URL environment variable
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 // Add a request timeout function to prevent hanging requests
 const timeoutPromise = (ms: number): Promise<never> => {
