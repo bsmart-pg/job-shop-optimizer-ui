@@ -1,8 +1,11 @@
 
 import { Schedule } from "./types";
 
-// Use relative /api path which will be proxied by Vite to the backend
-const API_BASE_URL = "/api";
+// Use /api as the base URL which will be proxied to the backend
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "/api";
+
+// Log the API base URL when the module is loaded to verify configuration
+console.log(`API is configured to connect to: ${API_BASE_URL}`);
 
 // Add a request timeout function to prevent hanging requests
 const timeoutPromise = (ms: number): Promise<never> => {
@@ -14,7 +17,7 @@ const timeoutPromise = (ms: number): Promise<never> => {
 // Enhanced fetch with timeout and better error handling
 const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30000) => {
   try {
-    console.log(`Fetching ${url}...`);
+    console.log(`Making request to: ${url}`);
     const response = await Promise.race([
       fetch(url, options),
       timeoutPromise(timeout)
@@ -35,7 +38,7 @@ const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30
     console.error("API request failed:", error);
     // Enhance error message for network failures
     if (error instanceof TypeError && error.message === 'Failed to fetch') {
-      throw new Error(`Network error: Could not connect to server. Please ensure the backend server is running.`);
+      throw new Error(`Network error: Could not connect to server at ${url}. Please ensure the backend server is running.`);
     }
     throw error;
   }
@@ -87,6 +90,7 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
     return cachedSchedule;
   }
   
+  // uncomment this for mock data
   // if (useMock) {
   //   console.warn("Using mock schedule data");
   //   const mockData = getMockSchedule();
@@ -96,8 +100,11 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
   // }
   
   try {
+    console.log(`Fetching schedule from ${API_BASE_URL}/schedule`);
     const response = await fetchWithTimeout(`${API_BASE_URL}/schedule`);
     const data = await response.json();
+    
+    console.log("Schedule data received:", data);
     
     // Update cache
     cachedSchedule = data;

@@ -3,24 +3,21 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import createProxyConfig from "./src/config/proxyConfig";
 
+// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 8080,
-    proxy: createProxyConfig()
+    port: 8080,  // Explicitly set to 8080 as requested
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger(),
+    mode === 'development' &&
+    componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  define: {
-    'process.env.BACKEND_URL': JSON.stringify(process.env.BACKEND_URL || 'http://backend_timefold:8081'),
-  }
 }));
