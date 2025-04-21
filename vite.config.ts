@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       '/api': {
-        target: 'http://backend_timefold:8081',
+        target: process.env.BACKEND_URL || 'http://backend_timefold:8081',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
@@ -28,3 +28,4 @@ export default defineConfig(({ mode }) => ({
     },
   },
 }));
+

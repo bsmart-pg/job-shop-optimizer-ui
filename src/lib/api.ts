@@ -1,7 +1,7 @@
 import { Schedule } from "./types";
 
-// Use relative /api path which will be proxied by Vite
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "/api";
+// Use relative /api path which will be proxied by Vite to the backend
+const API_BASE_URL = "/api";
 
 // Add a request timeout function to prevent hanging requests
 const timeoutPromise = (ms: number): Promise<never> => {
