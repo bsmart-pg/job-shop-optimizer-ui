@@ -8,7 +8,14 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 8080,  // Explicitly set to 8080 as requested
+    port: 8080,
+    proxy: {
+      '/api': {
+        target: 'http://backend_timefold:8081',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   },
   plugins: [
     react(),

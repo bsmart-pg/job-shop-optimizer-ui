@@ -1,7 +1,7 @@
 import { Schedule } from "./types";
 
-// You can change this in production using VITE_BACKEND_URL environment variable
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+// Use relative /api path which will be proxied by Vite
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "/api";
 
 // Add a request timeout function to prevent hanging requests
 const timeoutPromise = (ms: number): Promise<never> => {
