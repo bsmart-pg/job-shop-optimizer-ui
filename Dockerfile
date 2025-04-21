@@ -8,15 +8,15 @@ RUN npm ci
 COPY . .
 
 # Build with default backend URL if not provided
-ARG BACKEND_URL
-ENV VITE_BACKEND_URL=$BACKEND_URL
+ARG BACKEND_URL=http://backend_timefold:8081
+ENV BACKEND_URL=$BACKEND_URL
 RUN npm run build
 
 # Stage 2: Serve
 FROM node:20-alpine AS runner
 
-ARG BACKEND_URL
-ENV VITE_BACKEND_URL=$BACKEND_URL
+ARG BACKEND_URL=http://backend_timefold:8081
+ENV BACKEND_URL=$BACKEND_URL
 
 # Install a lightweight static server
 RUN npm i -g serve
@@ -39,4 +39,3 @@ CMD ["serve", "-s", "dist", "-l", "8080"]
 # Or with custom backend URL:
 # docker build --build-arg BACKEND_URL=http://your-backend-url jobshop-app .
 # Access the app at http://localhost:8080
-

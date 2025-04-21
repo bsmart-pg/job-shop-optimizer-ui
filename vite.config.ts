@@ -11,9 +11,20 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       '/api': {
-        target: process.env.BACKEND_URL,
+        target: process.env.BACKEND_URL || 'http://backend_timefold:8081',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        rewrite: (path) => path.replace(/^\/api/, ''),
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Request:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Received Response from:', req.url, 'Status:', proxyRes.statusCode);
+          });
+        }
       }
     }
   },
@@ -27,5 +38,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    'process.env.BACKEND_URL': JSON.stringify(process.env.BACKEND_URL || 'http://backend_timefold:8081'),
+  }
 }));
-

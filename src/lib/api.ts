@@ -1,3 +1,4 @@
+
 import { Schedule } from "./types";
 
 // Use relative /api path which will be proxied by Vite to the backend
@@ -13,6 +14,7 @@ const timeoutPromise = (ms: number): Promise<never> => {
 // Enhanced fetch with timeout and better error handling
 const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30000) => {
   try {
+    console.log(`Fetching ${url}...`);
     const response = await Promise.race([
       fetch(url, options),
       timeoutPromise(timeout)
@@ -33,7 +35,7 @@ const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30
     console.error("API request failed:", error);
     // Enhance error message for network failures
     if (error instanceof TypeError && error.message === 'Failed to fetch') {
-      throw new Error(`Network error: Could not connect to server at ${API_BASE_URL}. Please ensure the backend server is running.`);
+      throw new Error(`Network error: Could not connect to server. Please ensure the backend server is running.`);
     }
     throw error;
   }
