@@ -30,9 +30,7 @@ EXPOSE 8080
 CMD ["serve", "-s", "dist", "-l", "8080"]
 
 # Instructions for running the container:
-# 1. Build the image: docker build -t jobshop-app .
+# 1. Build the image: docker build -t jobshop-app --build-arg BACKEND_URL=http://your-backend-url .
 # 2. Run the container: docker run -p 8080:8080 jobshop-app
-# Or with custom backend URL:
-# docker build --build-arg BACKEND_URL=http://your-backend-url jobshop-app .
 # Access the app at http://localhost:8080
 

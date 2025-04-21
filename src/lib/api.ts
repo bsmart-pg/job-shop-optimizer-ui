@@ -1,7 +1,7 @@
 import { Schedule } from "./types";
 
 // You can change this in production using VITE_BACKEND_URL environment variable
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+const API_BASE_URL = '/api';
 
 // Add a request timeout function to prevent hanging requests
 const timeoutPromise = (ms: number): Promise<never> => {
@@ -84,14 +84,6 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
   if (!skipCache && cachedSchedule && (now - lastFetchTime < CACHE_TTL)) {
     return cachedSchedule;
   }
-  
-  // if (useMock) {
-  //   console.warn("Using mock schedule data");
-  //   const mockData = getMockSchedule();
-  //   cachedSchedule = mockData;
-  //   lastFetchTime = now;
-  //   return mockData;
-  // }
   
   try {
     const response = await fetchWithTimeout(`${API_BASE_URL}/schedule`);
