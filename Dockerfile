@@ -8,31 +8,31 @@ RUN npm ci
 COPY . .
 
 # Build with default backend URL if not provided
-ARG BACKEND_URL=/api
+ARG BACKEND_URL=http://localhost:8080
 ENV VITE_BACKEND_URL=$BACKEND_URL
 RUN npm run build
 
-# Stage 2: Serve with proxy
+# Stage 2: Serve
 FROM node:20-alpine AS runner
 
-# Install a lightweight static server with proxy capabilities
-RUN npm i -g serve http-proxy-middleware
+# Install a lightweight static server
+RUN npm i -g serve
 
 WORKDIR /app
 
 # Copy built assets from builder
 COPY --from=builder /app/dist ./dist
-# Add proxy configuration
-COPY proxy.js ./
 
 # Expose port 8080
 EXPOSE 8080
 
-# Default command to run the app with proxy
-CMD ["node", "proxy.js"]
+# Default command to run the app
+CMD ["serve", "-s", "dist", "-l", "8080"]
 
 # Instructions for running the container:
 # 1. Build the image: docker build -t jobshop-app .
-# 2. Run the container with docker-compose (see docker-compose.yml example below)
-# The frontend will connect to /api which gets proxied to http://backend_timefold:8081
+# 2. Run the container: docker run -p 8080:8080 jobshop-app
+# Or with custom backend URL:
+# docker build --build-arg BACKEND_URL=http://your-backend-url jobshop-app .
 # Access the app at http://localhost:8080
+
