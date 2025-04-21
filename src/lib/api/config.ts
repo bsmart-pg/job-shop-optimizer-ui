@@ -29,10 +29,7 @@ export const fetchWithTimeout = async (url: string, options?: RequestInit, timeo
         headers: {
           ...options?.headers,
           'Content-Type': options?.headers?.['Content-Type'] || 'application/json',
-        },
-        // Enable CORS
-        mode: 'cors',
-        credentials: 'include',
+        }
       }),
       timeoutPromise(timeout)
     ]);
@@ -71,7 +68,7 @@ export const fetchWithTimeout = async (url: string, options?: RequestInit, timeo
   } catch (error) {
     console.error("API REQUEST FAILED:", error);
     if (error instanceof TypeError && error.message === 'Failed to fetch') {
-      throw new Error(`Network error: Could not connect to server at ${API_BASE_URL}. Please ensure the backend server is running and CORS is properly configured.`);
+      throw new Error(`Network error: Could not connect to server at ${API_BASE_URL}. Please ensure the backend server is running.`);
     }
     throw error;
   }
