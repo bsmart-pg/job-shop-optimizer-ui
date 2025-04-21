@@ -12,16 +12,29 @@ export const timeoutPromise = (ms: number): Promise<never> => {
 // Enhanced fetch with timeout and better error handling
 export const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30000) => {
   try {
+    console.log(`Making request to: ${url}`);
     const response = await Promise.race([
       fetch(url, options),
       timeoutPromise(timeout)
     ]);
     
+    console.log(`Response status: ${response.status} for ${url}`);
+    
     if (!response.ok) {
       try {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error ${response.status}`);
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `HTTP error ${response.status}`);
+        } else {
+          const text = await response.text();
+          console.error(`Non-JSON error response: ${text}`);
+          throw new Error(`HTTP error ${response.status}`);
+        }
       } catch (e) {
+        if (e instanceof Error && e.message.includes('HTTP error')) {
+          throw e;
+        }
         throw new Error(`HTTP error ${response.status}`);
       }
     }

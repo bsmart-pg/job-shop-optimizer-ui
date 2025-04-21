@@ -14,8 +14,21 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
     return cachedSchedule;
   }
   
+  if (useMock) {
+    return getMockSchedule();
+  }
+  
   try {
     const response = await fetchWithTimeout(`${API_BASE_URL}/schedule`);
+    
+    // Check if the response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      console.error(`Invalid response format (not JSON): ${text}`);
+      throw new Error("Invalid response format received from server (not JSON)");
+    }
+    
     const data = await response.json();
     
     cachedSchedule = data;
