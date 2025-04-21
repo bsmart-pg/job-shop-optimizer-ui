@@ -1,11 +1,14 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { RefreshCw, Play, Square, Download } from "lucide-react";
+import { RefreshCw, Play, Square, Download, CalendarRange } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TimeframeSelector } from "@/components/TimeframeSelector";
 import { exportToExcel } from "@/lib/excelExport";
 import { toast } from "@/components/ui/sonner";
+import { format, parseISO } from "date-fns";
+import { de } from "date-fns/locale";
 
 interface ScheduleControlsProps {
   score: string | null;
@@ -16,6 +19,8 @@ interface ScheduleControlsProps {
   onStopSolving: () => void;
   selectedView: string;
   onViewChange: (view: string) => void;
+  workCalendarFromDate: string | null;
+  workCalendarToDate: string | null;
 }
 
 export function ScheduleControls({
@@ -27,11 +32,27 @@ export function ScheduleControls({
   onStopSolving,
   selectedView,
   onViewChange,
+  workCalendarFromDate,
+  workCalendarToDate,
 }: ScheduleControlsProps) {
+  // Formatting helper
+  let timeframeLabel = null;
+  if (workCalendarFromDate && workCalendarToDate) {
+    try {
+      const from = format(parseISO(workCalendarFromDate), "dd.MM.yyyy", { locale: de });
+      const to = format(parseISO(workCalendarToDate), "dd.MM.yyyy", { locale: de });
+      timeframeLabel = `Zeitraum: ${from} – ${to}`;
+    } catch (e) {
+      // fallback in case of parse error
+      timeframeLabel = `Zeitraum: ${workCalendarFromDate} – ${workCalendarToDate}`;
+    }
+  } else {
+    timeframeLabel = "Zeitraum: —";
+  }
+
   return (
     <Card className="p-4 mb-6 space-y-4">
       <TimeframeSelector onTimeframeSet={onRefresh} />
-      
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex gap-2">
           <Button 
@@ -94,6 +115,10 @@ export function ScheduleControls({
             <TabsTrigger value="byJob">Jobansicht</TabsTrigger>
           </TabsList>
         </Tabs>
+      </div>
+      <div className="flex items-center gap-2 pt-2">
+        <CalendarRange className="h-4 w-4 text-muted-foreground" />
+        <span className="text-muted-foreground text-sm">{timeframeLabel}</span>
       </div>
     </Card>
   );

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { JobShopHeader } from "@/components/JobShopHeader";
 import { FileUpload } from "@/components/FileUpload";
@@ -29,6 +30,10 @@ const Index = () => {
     resetSchedule();
     refreshSchedule();
   };
+
+  // Prepare workCalendar info for ScheduleControls
+  const workCalendarFromDate = schedule?.workCalendar?.fromDate || null;
+  const workCalendarToDate = schedule?.workCalendar?.toDate || null;
 
   return (
     <div className="container py-6">
@@ -62,6 +67,8 @@ const Index = () => {
               onStopSolving={stopSolving}
               selectedView={selectedView}
               onViewChange={setSelectedView}
+              workCalendarFromDate={workCalendarFromDate}
+              workCalendarToDate={workCalendarToDate}
             />
             
             {solving ? (
@@ -108,3 +115,4 @@ const Index = () => {
 };
 
 export default Index;
+
