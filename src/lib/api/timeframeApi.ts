@@ -3,7 +3,7 @@ import { API_BASE_URL, fetchWithTimeout } from "./config";
 
 export const setTimeframe = async (startDate: string, endDate: string): Promise<void> => {
   try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/schedule/setTimeframe`, {
+    const response = await fetchWithTimeout(`/schedule/setTimeframe`, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',

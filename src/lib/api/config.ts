@@ -1,6 +1,6 @@
 
 // API base URL configuration
-export const API_BASE_URL = '/api';
+export const API_BASE_URL = process.env.VITE_BACKEND_URL || 'http://localhost:8080';
 
 // Request timeout utility
 export const timeoutPromise = (ms: number): Promise<never> => {
@@ -12,8 +12,10 @@ export const timeoutPromise = (ms: number): Promise<never> => {
 // Enhanced fetch with timeout and better error handling
 export const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30000) => {
   try {
+    const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+    
     console.log(`----------------------------------------`);
-    console.log(`API REQUEST: ${options?.method || 'GET'} ${url}`);
+    console.log(`API REQUEST: ${options?.method || 'GET'} ${fullUrl}`);
     if (options?.body) {
       console.log(`REQUEST BODY:`, options.body);
     }
@@ -22,11 +24,17 @@ export const fetchWithTimeout = async (url: string, options?: RequestInit, timeo
     }
     
     const response = await Promise.race([
-      fetch(url, options),
+      fetch(fullUrl, {
+        ...options,
+        headers: {
+          ...options?.headers,
+          'Content-Type': options?.headers?.['Content-Type'] || 'application/json',
+        }
+      }),
       timeoutPromise(timeout)
     ]);
     
-    console.log(`API RESPONSE: ${response.status} for ${url}`);
+    console.log(`API RESPONSE: ${response.status} for ${fullUrl}`);
     
     // Log response headers
     const headers: Record<string, string> = {};

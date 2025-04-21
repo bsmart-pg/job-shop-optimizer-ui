@@ -10,7 +10,7 @@ export const uploadFiles = async (files: File[]): Promise<string> => {
   });
 
   try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/schedule/uploadFiles`, {
+    const response = await fetchWithTimeout(`/schedule/uploadFiles`, {
       method: "POST",
       body: formData,
     }, 60000); // Longer timeout for uploads

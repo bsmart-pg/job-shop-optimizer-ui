@@ -1,3 +1,4 @@
+
 import { Schedule } from "../types";
 import { API_BASE_URL, fetchWithTimeout } from "./config";
 import { getMockSchedule } from "./mockData";
@@ -21,7 +22,7 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
   
   try {
     console.log(`Fetching schedule from ${API_BASE_URL}/schedule`);
-    const response = await fetchWithTimeout(`${API_BASE_URL}/schedule`);
+    const response = await fetchWithTimeout(`/schedule`);
     
     // Check if the response is JSON
     const contentType = response.headers.get('content-type');
@@ -54,7 +55,7 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
 
 export const startSolving = async (): Promise<void> => {
   try {
-    await fetchWithTimeout(`${API_BASE_URL}/schedule/solve`, {
+    await fetchWithTimeout(`/schedule/solve`, {
       method: "POST",
     });
     cachedSchedule = null;
@@ -66,7 +67,7 @@ export const startSolving = async (): Promise<void> => {
 
 export const stopSolving = async (): Promise<void> => {
   try {
-    await fetchWithTimeout(`${API_BASE_URL}/schedule/stopSolving`, {
+    await fetchWithTimeout(`/schedule/stopSolving`, {
       method: "POST",
     });
     cachedSchedule = null;
@@ -78,7 +79,7 @@ export const stopSolving = async (): Promise<void> => {
 
 export const resetSchedule = async (): Promise<void> => {
   try {
-    await fetchWithTimeout(`${API_BASE_URL}/schedule/reset`, {
+    await fetchWithTimeout(`/schedule/reset`, {
       method: "POST",
     });
     cachedSchedule = null;
