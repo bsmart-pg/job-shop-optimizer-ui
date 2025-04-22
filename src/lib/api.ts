@@ -15,7 +15,7 @@ const timeoutPromise = (ms: number): Promise<never> => {
 const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30000) => {
   try {
     const response = await Promise.race([
-      fetch(`/api${url}`, options),
+      fetch(url, options),
       timeoutPromise(timeout)
     ]);
     
