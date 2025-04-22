@@ -1,4 +1,3 @@
-
 import { Schedule } from "./types";
 import { mergeConsecutiveJobs } from "./scheduleUtils";
 
@@ -101,10 +100,30 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
     
     console.log("Original jobs before merging:", data.jobs.length);
     
+    // Count jobs per line before merging
+    const lineCountBefore: Record<string, number> = {};
+    data.jobs.forEach((job: any) => {
+      if (job.line) {
+        const lineId = job.line.id;
+        lineCountBefore[lineId] = (lineCountBefore[lineId] || 0) + 1;
+      }
+    });
+    console.log("Jobs per line before merging:", lineCountBefore);
+    
     // Merge consecutive jobs with the same product
     const mergedJobs = mergeConsecutiveJobs(data.jobs);
     
     console.log("Merged jobs after processing:", mergedJobs.length);
+    
+    // Count jobs per line after merging
+    const lineCountAfter: Record<string, number> = {};
+    mergedJobs.forEach((job: any) => {
+      if (job.line) {
+        const lineId = job.line.id;
+        lineCountAfter[lineId] = (lineCountAfter[lineId] || 0) + 1;
+      }
+    });
+    console.log("Jobs per line after merging:", lineCountAfter);
     
     const processedData = {
       ...data,
