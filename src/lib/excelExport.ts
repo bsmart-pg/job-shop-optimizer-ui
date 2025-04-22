@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Schedule, Job } from './types';
+import { mergeConsecutiveJobs } from './scheduleUtils';
 
 export const exportToExcel = async () => {
   try {
@@ -13,10 +14,14 @@ export const exportToExcel = async () => {
     }
     
     const schedule: Schedule = await response.json();
-    console.log('Schedule data:', schedule);
+    console.log('Original jobs before merging:', schedule.jobs.length);
     
-    // Transform jobs into Excel data rows
-    const data = schedule.jobs
+    // Apply the same merging logic used in the timeline
+    const mergedJobs = mergeConsecutiveJobs(schedule.jobs);
+    console.log('Jobs after merging for Excel export:', mergedJobs.length);
+    
+    // Transform merged jobs into Excel data rows
+    const data = mergedJobs
       .filter(job => job.line) // Only include assigned jobs
       .map((job: Job) => ({
         'Job': job.name.split(" x ")[0],
@@ -32,10 +37,6 @@ export const exportToExcel = async () => {
           new Date(job.endDateTime) <= new Date(job.dueDateTime) ? 'Yes' : 'No'
       }));
     
-    // Debug output
-    console.log('Exported data rows:', data.length);
-    console.log('Sample data:', data.slice(0, 2));
-
     // Create workbook and worksheet
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(data);
@@ -52,6 +53,6 @@ export const exportToExcel = async () => {
     console.log('Excel export completed successfully');
   } catch (error) {
     console.error('Error exporting timeline to Excel:', error);
-    alert('There was an error exporting the timeline data. Please check the console for details.');
+    throw error;
   }
 };
