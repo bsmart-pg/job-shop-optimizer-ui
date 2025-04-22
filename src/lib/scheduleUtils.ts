@@ -22,7 +22,9 @@ export function mergeConsecutiveJobs(jobs: Job[]): Job[] {
     const firstJob = chain[0];
     const lastJob = chain[chain.length - 1];
     const totalAmount = chain.reduce((sum, job) => {
-      const amount = parseInt(job.name.split(" x ")[1]) || 0;
+      // Extract amount part from the job name, default to 1 if not found
+      const parts = job.name.split(" x ");
+      const amount = parts.length > 1 ? parseInt(parts[1]) || 1 : 1;
       return sum + amount;
     }, 0);
 

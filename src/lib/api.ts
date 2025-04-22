@@ -1,3 +1,4 @@
+
 import { Schedule } from "./types";
 import { mergeConsecutiveJobs } from "./scheduleUtils";
 
@@ -98,8 +99,13 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
     const response = await fetchWithTimeout(`${API_BASE_URL}/schedule`);
     const data = await response.json();
     
+    console.log("Original jobs before merging:", data.jobs.length);
+    
     // Merge consecutive jobs with the same product
     const mergedJobs = mergeConsecutiveJobs(data.jobs);
+    
+    console.log("Merged jobs after processing:", mergedJobs.length);
+    
     const processedData = {
       ...data,
       jobs: mergedJobs
