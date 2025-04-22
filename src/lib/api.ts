@@ -1,17 +1,17 @@
 import { Schedule } from "./types";
 import { mergeConsecutiveJobs } from "./scheduleUtils";
 
-// You can change this in production using VITE_BACKEND_URL environment variable
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+// Remove the API_BASE_URL as we'll use relative URLs with the proxy
+// const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
-// Add a request timeout function to prevent hanging requests
+// Keep the timeoutPromise helper
 const timeoutPromise = (ms: number): Promise<never> => {
   return new Promise((_, reject) => {
     setTimeout(() => reject(new Error(`Request timed out after ${ms}ms`)), ms);
   });
 };
 
-// Enhanced fetch with timeout and better error handling
+// Update fetchWithTimeout to use relative URLs
 const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30000) => {
   try {
     const response = await Promise.race([
@@ -20,7 +20,6 @@ const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30
     ]);
     
     if (!response.ok) {
-      // Try to parse error message from response
       try {
         const errorData = await response.json();
         throw new Error(errorData.message || `HTTP error ${response.status}`);
@@ -32,9 +31,8 @@ const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30
     return response;
   } catch (error) {
     console.error("API request failed:", error);
-    // Enhance error message for network failures
     if (error instanceof TypeError && error.message === 'Failed to fetch') {
-      throw new Error(`Network error: Could not connect to server at ${API_BASE_URL}. Please ensure the backend server is running.`);
+      throw new Error('Network error: Could not connect to the backend server. Please ensure the backend server is running.');
     }
     throw error;
   }
@@ -80,22 +78,13 @@ const getMockSchedule = (): Schedule => ({
 });
 
 export const fetchSchedule = async (skipCache = false, useMock = false): Promise<Schedule> => {
-  // Return cached data if available and fresh
   const now = Date.now();
   if (!skipCache && cachedSchedule && (now - lastFetchTime < CACHE_TTL)) {
     return cachedSchedule;
   }
-  
-  // if (useMock) {
-  //   console.warn("Using mock schedule data");
-  //   const mockData = getMockSchedule();
-  //   cachedSchedule = mockData;
-  //   lastFetchTime = now;
-  //   return mockData;
-  // }
-  
+
   try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/schedule`);
+    const response = await fetchWithTimeout('/schedule');
     const data = await response.json();
     
     console.log("Original jobs before merging:", data.jobs.length);
@@ -110,12 +99,10 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
     });
     console.log("Jobs per line before merging:", lineCountBefore);
     
-    // Merge consecutive jobs with the same product
     const mergedJobs = mergeConsecutiveJobs(data.jobs);
     
     console.log("Merged jobs after processing:", mergedJobs.length);
     
-    // Count jobs per line after merging
     const lineCountAfter: Record<string, number> = {};
     mergedJobs.forEach((job: any) => {
       if (job.line) {
@@ -130,15 +117,13 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
       jobs: mergedJobs
     };
     
-    // Update cache
     cachedSchedule = processedData;
     lastFetchTime = Date.now();
     
     return processedData;
   } catch (error) {
     console.error("Failed to fetch schedule:", error);
-    // Fallback to mock data if specified
-    if (error instanceof Error && error.message.includes("Could not connect to server")) {
+    if (useMock) {
       console.warn("Backend server not available, using mock data");
       return getMockSchedule();
     }
@@ -148,11 +133,9 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
 
 export const startSolving = async (): Promise<void> => {
   try {
-    await fetchWithTimeout(`${API_BASE_URL}/schedule/solve`, {
+    await fetchWithTimeout('/schedule/solve', {
       method: "POST",
     });
-    
-    // Invalidate cache when starting solving
     cachedSchedule = null;
   } catch (error) {
     console.error("Failed to start solving:", error);
@@ -162,11 +145,9 @@ export const startSolving = async (): Promise<void> => {
 
 export const stopSolving = async (): Promise<void> => {
   try {
-    await fetchWithTimeout(`${API_BASE_URL}/schedule/stopSolving`, {
+    await fetchWithTimeout('/schedule/stopSolving', {
       method: "POST",
     });
-    
-    // Invalidate cache when stopping solving
     cachedSchedule = null;
   } catch (error) {
     console.error("Failed to stop solving:", error);
@@ -176,11 +157,9 @@ export const stopSolving = async (): Promise<void> => {
 
 export const resetSchedule = async (): Promise<void> => {
   try {
-    await fetchWithTimeout(`${API_BASE_URL}/schedule/reset`, {
+    await fetchWithTimeout('/schedule/reset', {
       method: "POST",
     });
-    
-    // Invalidate cache when resetting schedule
     cachedSchedule = null;
   } catch (error) {
     console.error("Failed to reset schedule:", error);
@@ -197,14 +176,12 @@ export const uploadFiles = async (files: File[]): Promise<string> => {
   });
 
   try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/schedule/uploadFiles`, {
+    const response = await fetchWithTimeout('/schedule/uploadFiles', {
       method: "POST",
       body: formData,
-    }, 60000); // Longer timeout for uploads
-
-    // Invalidate cache when uploading files
-    cachedSchedule = null;
+    }, 60000);
     
+    cachedSchedule = null;
     return await response.text();
   } catch (error) {
     console.error("Failed to upload files:", error);
@@ -214,7 +191,7 @@ export const uploadFiles = async (files: File[]): Promise<string> => {
 
 export const setTimeframe = async (startDate: string, endDate: string): Promise<void> => {
   try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/schedule/setTimeframe`, {
+    const response = await fetchWithTimeout('/schedule/setTimeframe', {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
@@ -225,7 +202,6 @@ export const setTimeframe = async (startDate: string, endDate: string): Promise<
       })
     });
     
-    // Invalidate cache when changing timeframe
     cachedSchedule = null;
     
     if (!response.ok) {

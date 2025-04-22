@@ -8,7 +8,15 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 8083,  // Explicitly set to 8080 as requested
+    port: 8080,
+    proxy: {
+      '/schedule': {
+        target: process.env.VITE_BACKEND_URL || 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path
+      }
+    }
   },
   plugins: [
     react(),

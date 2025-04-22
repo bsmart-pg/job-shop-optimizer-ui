@@ -7,8 +7,8 @@ import { mergeConsecutiveJobs } from './scheduleUtils';
 
 export const exportToExcel = async () => {
   try {
-    // Fetch schedule data from the API
-    const response = await fetch('http://localhost:8080/schedule');
+    // Use relative URL for the fetch call
+    const response = await fetch('/schedule');
     if (!response.ok) {
       throw new Error('Failed to fetch schedule data');
     }
