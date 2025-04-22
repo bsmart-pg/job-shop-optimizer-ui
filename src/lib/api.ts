@@ -1,3 +1,4 @@
+
 import { Schedule } from "./types";
 import { mergeConsecutiveJobs } from "./scheduleUtils";
 
@@ -11,7 +12,7 @@ const timeoutPromise = (ms: number): Promise<never> => {
   });
 };
 
-// Update fetchWithTimeout to use relative URLs
+// Update fetchWithTimeout to use proxy URLs
 const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30000) => {
   try {
     const response = await Promise.race([
@@ -84,7 +85,7 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
   }
 
   try {
-    const response = await fetchWithTimeout('/schedule');
+    const response = await fetchWithTimeout('/api/schedule');
     const data = await response.json();
     
     console.log("Original jobs before merging:", data.jobs.length);
@@ -133,7 +134,7 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
 
 export const startSolving = async (): Promise<void> => {
   try {
-    await fetchWithTimeout('/schedule/solve', {
+    await fetchWithTimeout('/api/schedule/solve', {
       method: "POST",
     });
     cachedSchedule = null;
@@ -145,7 +146,7 @@ export const startSolving = async (): Promise<void> => {
 
 export const stopSolving = async (): Promise<void> => {
   try {
-    await fetchWithTimeout('/schedule/stopSolving', {
+    await fetchWithTimeout('/api/schedule/stopSolving', {
       method: "POST",
     });
     cachedSchedule = null;
@@ -157,7 +158,7 @@ export const stopSolving = async (): Promise<void> => {
 
 export const resetSchedule = async (): Promise<void> => {
   try {
-    await fetchWithTimeout('/schedule/reset', {
+    await fetchWithTimeout('/api/schedule/reset', {
       method: "POST",
     });
     cachedSchedule = null;
@@ -176,7 +177,7 @@ export const uploadFiles = async (files: File[]): Promise<string> => {
   });
 
   try {
-    const response = await fetchWithTimeout('/schedule/uploadFiles', {
+    const response = await fetchWithTimeout('/api/schedule/uploadFiles', {
       method: "POST",
       body: formData,
     }, 60000);
@@ -191,7 +192,7 @@ export const uploadFiles = async (files: File[]): Promise<string> => {
 
 export const setTimeframe = async (startDate: string, endDate: string): Promise<void> => {
   try {
-    const response = await fetchWithTimeout('/schedule/setTimeframe', {
+    const response = await fetchWithTimeout('/api/schedule/setTimeframe', {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',

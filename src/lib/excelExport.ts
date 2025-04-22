@@ -7,8 +7,8 @@ import { mergeConsecutiveJobs } from './scheduleUtils';
 
 export const exportToExcel = async () => {
   try {
-    // Use relative URL for the fetch call
-    const response = await fetch('/schedule');
+    // Use proxy URL for the fetch call
+    const response = await fetch('/api/schedule');
     if (!response.ok) {
       throw new Error('Failed to fetch schedule data');
     }
