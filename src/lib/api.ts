@@ -1,4 +1,5 @@
 import { Schedule } from "./types";
+import { mergeConsecutiveJobs } from "./scheduleUtils";
 
 // You can change this in production using VITE_BACKEND_URL environment variable
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
@@ -97,11 +98,18 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
     const response = await fetchWithTimeout(`${API_BASE_URL}/schedule`);
     const data = await response.json();
     
-    // Update cache
-    cachedSchedule = data;
-    lastFetchTime = now;
+    // Merge consecutive jobs with the same product
+    const mergedJobs = mergeConsecutiveJobs(data.jobs);
+    const processedData = {
+      ...data,
+      jobs: mergedJobs
+    };
     
-    return data;
+    // Update cache
+    cachedSchedule = processedData;
+    lastFetchTime = Date.now();
+    
+    return processedData;
   } catch (error) {
     console.error("Failed to fetch schedule:", error);
     // Fallback to mock data if specified
