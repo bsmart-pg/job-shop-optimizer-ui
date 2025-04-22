@@ -8,8 +8,13 @@ export const timeoutPromise = (ms: number): Promise<never> => {
 
 export const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30000) => {
   try {
+    // Ensure API URLs are always prefixed with /api when needed
+    const apiUrl = url.startsWith('/') && !url.startsWith('/api') 
+      ? `/api${url}` 
+      : url;
+    
     const response = await Promise.race([
-      fetch(url, options),
+      fetch(apiUrl, options),
       timeoutPromise(timeout)
     ]);
     

@@ -4,11 +4,12 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Schedule, Job } from './types';
 import { mergeConsecutiveJobs } from './scheduleUtils';
+import { fetchWithTimeout } from './utils/fetchUtils';
 
 export const exportToExcel = async () => {
   try {
-    // Use proxy URL for the fetch call
-    const response = await fetch('/api/schedule');
+    // Use our fetchWithTimeout utility to handle the API call
+    const response = await fetchWithTimeout('/schedule');
     if (!response.ok) {
       throw new Error('Failed to fetch schedule data');
     }
