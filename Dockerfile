@@ -3,8 +3,9 @@
 FROM node:20-alpine AS builder
 
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json ./
+# Use npm install instead of npm ci to update package-lock.json as needed
+RUN npm install
 COPY . .
 
 # Build with default backend URL if not provided
