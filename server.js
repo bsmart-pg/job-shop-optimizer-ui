@@ -14,7 +14,7 @@ console.log('Starting server with backend URL:', BACKEND_URL);
 app.use('/api', createProxyMiddleware({
   target: BACKEND_URL,
   changeOrigin: true,
-  pathRewrite: { '^/api': '' },
+  pathRewrite: (path) => path.replace(/^\/api/, ''),
   logLevel: 'debug'
 }));
 
