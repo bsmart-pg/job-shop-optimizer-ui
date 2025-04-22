@@ -8,6 +8,7 @@ export const timeoutPromise = (ms: number): Promise<never> => {
 
 export const fetchWithTimeout = async (url: string, options?: RequestInit, timeout = 30000) => {
   try {
+    console.log(`Fetching from: ${url}`);
     const response = await Promise.race([
       fetch(url, options),
       timeoutPromise(timeout)
