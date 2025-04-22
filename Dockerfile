@@ -16,11 +16,15 @@ RUN npm run build
 # Stage 2: Serve with proxy capabilities
 FROM node:20-alpine AS runner
 
+# Build with default backend URL if not provided
+ARG BACKEND_URL
+ENV VITE_BACKEND_URL=$BACKEND_URL
+
 WORKDIR /app
 
 # Install required packages for our custom server
 RUN npm init -y && \
-    npm install express http-proxy-middleware
+    npm install express@v4.20.0 http-proxy-middleware
 
 # Copy built assets from builder
 COPY --from=builder /app/dist ./dist
