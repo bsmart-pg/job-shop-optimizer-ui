@@ -4,7 +4,7 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 COPY package.json ./
-# Use npm install instead of npm ci to update package-lock.json as needed
+# Use npm install instead of npm ci to handle any lock file inconsistencies
 RUN npm install
 COPY . .
 
