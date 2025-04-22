@@ -1,4 +1,3 @@
-
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -7,8 +6,7 @@ import { mergeConsecutiveJobs } from './scheduleUtils';
 
 export const exportToExcel = async () => {
   try {
-    // Use relative URL for the fetch call
-    const response = await fetch('/schedule');
+    const response = await fetch('/api/schedule');
     if (!response.ok) {
       throw new Error('Failed to fetch schedule data');
     }
@@ -16,11 +14,9 @@ export const exportToExcel = async () => {
     const schedule: Schedule = await response.json();
     console.log('Original jobs before merging:', schedule.jobs.length);
     
-    // Apply the same merging logic used in the timeline
     const mergedJobs = mergeConsecutiveJobs(schedule.jobs);
     console.log('Jobs after merging for Excel export:', mergedJobs.length);
     
-    // Transform merged jobs into Excel data rows
     const data = mergedJobs
       .filter(job => job.line) // Only include assigned jobs
       .map((job: Job) => ({
@@ -37,17 +33,13 @@ export const exportToExcel = async () => {
           new Date(job.endDateTime) <= new Date(job.dueDateTime) ? 'Yes' : 'No'
       }));
     
-    // Create workbook and worksheet
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(data);
     
-    // Add worksheet to workbook
     XLSX.utils.book_append_sheet(wb, ws, 'Timeline');
     
-    // Generate filename with current date
     const fileName = `timeline_export_${format(new Date(), 'dd_MM_yyyy')}.xlsx`;
     
-    // Export file
     XLSX.writeFile(wb, fileName);
     
     console.log('Excel export completed successfully');
