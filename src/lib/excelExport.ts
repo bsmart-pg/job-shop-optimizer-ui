@@ -19,7 +19,8 @@ export const exportToExcel = async () => {
     const data = schedule.jobs
       .filter(job => job.line) // Only include assigned jobs
       .map((job: Job) => ({
-        'Job': job.name,
+        'Job': job.name.split(" x ")[0],
+        'Amount': job.name.split(" x ")[1],
         'Line': job.line?.name || '',
         'Start Cleaning': job.startCleaningDateTime ? format(new Date(job.startCleaningDateTime), 'dd.MM.yyyy HH:mm', { locale: de }) : '',
         'Start Production': job.startProductionDateTime ? format(new Date(job.startProductionDateTime), 'dd.MM.yyyy HH:mm', { locale: de }) : '',
