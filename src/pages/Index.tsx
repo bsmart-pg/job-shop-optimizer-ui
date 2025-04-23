@@ -12,6 +12,7 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Spinner } from "@/components/Spinner";
 import { ExcludedJobs } from "@/components/ExcludedJobs";
 import { OnTimeRate } from "@/components/OnTimeRate";
+import { DelayedJobs } from "@/components/DelayedJobs";
 
 const Index = () => {
   const {
@@ -112,6 +113,7 @@ const Index = () => {
               )}
               
               <OnTimeRate jobs={schedule.jobs} />
+              <DelayedJobs jobs={schedule.jobs} />
               <UnassignedJobs jobs={schedule.jobs} />
               <ExcludedJobs jobs={schedule.excludedJobs} />
             </>
