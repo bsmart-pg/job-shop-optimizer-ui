@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { JobShopHeader } from "@/components/JobShopHeader";
 import { FileUpload } from "@/components/FileUpload";
@@ -12,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Spinner } from "@/components/Spinner";
 import { ExcludedJobs } from "@/components/ExcludedJobs";
+import { OnTimeRate } from "@/components/OnTimeRate";
 
 const Index = () => {
   const {
@@ -25,13 +25,13 @@ const Index = () => {
     resetSchedule
   } = useSchedule();
   const [selectedView, setSelectedView] = useState<string>("byLine");
+  const [selectedJob, setSelectedJob] = useState<any>(null);
 
   const handleUploadSuccess = () => {
     resetSchedule();
     refreshSchedule();
   };
 
-  // Prepare workCalendar info for ScheduleControls
   const workCalendarFromDate = schedule?.workCalendar?.fromDate || null;
   const workCalendarToDate = schedule?.workCalendar?.toDate || null;
 
@@ -104,6 +104,14 @@ const Index = () => {
           
           {!solving && (
             <>
+              {selectedJob && (
+                <div className="mt-6">
+                  <p className="text-lg font-semibold">Selected Job: {selectedJob.name}</p>
+                  <p className="mt-2 text-muted-foreground">Job ID: {selectedJob.id}</p>
+                </div>
+              )}
+              
+              <OnTimeRate jobs={schedule.jobs} />
               <UnassignedJobs jobs={schedule.jobs} />
               <ExcludedJobs jobs={schedule.excludedJobs} />
             </>
@@ -115,4 +123,3 @@ const Index = () => {
 };
 
 export default Index;
-
