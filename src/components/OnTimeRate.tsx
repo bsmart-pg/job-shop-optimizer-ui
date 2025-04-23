@@ -31,12 +31,18 @@ export function OnTimeRate({ jobs }: OnTimeRateProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center space-y-2">
           <span className="text-4xl font-bold">
             {onTimeRate.toFixed(1)}%
           </span>
+          {onTimeRate < 100 && (
+            <p className="text-sm text-destructive text-center px-4">
+              Einige Auftäge sind nicht vollständig produziert bis zum Fälligkeitsdatum. Möglicherweise ist der Planungszeitraum nicht ausreichend für das Auftragsvolumen.
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
   );
 }
+
