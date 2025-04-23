@@ -17,9 +17,16 @@ export function DelayedJobs({ jobs }: DelayedJobsProps) {
   const itemsPerPage = 9;
   
   const delayedJobs = useMemo(() => {
-    return jobs.filter(job => {
+    const delayed = jobs.filter(job => {
       if (!job.endDateTime) return false;
       return new Date(job.endDateTime) > new Date(job.dueDateTime);
+    });
+    
+    // Sort by delay (end date - due date) in descending order
+    return delayed.sort((a, b) => {
+      const aDelay = new Date(a.endDateTime!).getTime() - new Date(a.dueDateTime).getTime();
+      const bDelay = new Date(b.endDateTime!).getTime() - new Date(b.dueDateTime).getTime();
+      return bDelay - aDelay;
     });
   }, [jobs]);
   
