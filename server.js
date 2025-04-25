@@ -12,15 +12,37 @@ const BACKEND_URL = process.env.VITE_BACKEND_URL || 'http://localhost:8080';
 
 console.log('Starting server with backend URL:', BACKEND_URL);
 
-// SSL configuration
-const sslOptions = {
-  key: fs.readFileSync(process.env.SSL_KEY_PATH || 'path/to/private.key'),
-  cert: fs.readFileSync(process.env.SSL_CERT_PATH || 'path/to/certificate.crt')
-};
+// SSL configuration with improved error handling
+let sslOptions;
+try {
+  const keyPath = process.env.SSL_KEY_PATH || 'path/to/private.key';
+  const certPath = process.env.SSL_CERT_PATH || 'path/to/certificate.crt';
+  
+  console.log('Attempting to read SSL files:');
+  console.log(`Key path: ${keyPath}`);
+  console.log(`Cert path: ${certPath}`);
+  
+  // Check if files exist before reading
+  if (!fs.existsSync(keyPath)) {
+    throw new Error(`SSL key file does not exist at path: ${keyPath}`);
+  }
+  
+  if (!fs.existsSync(certPath)) {
+    throw new Error(`SSL certificate file does not exist at path: ${certPath}`);
+  }
+  
+  sslOptions = {
+    key: fs.readFileSync(keyPath),
+    cert: fs.readFileSync(certPath)
+  };
+  
+  console.log('SSL files loaded successfully');
+} catch (error) {
+  console.error('Error loading SSL files:', error.message);
+  console.error('Continuing with HTTP only');
+  sslOptions = null;
+}
 
-console.log("reading ssl data from: ")
-console.log(process.env.SSL_KEY_PATH || 'path/to/private.key')
-console.log(process.env.SSL_CERT_PATH || 'path/to/certificate.key')
 // Proxy middleware configuration
 app.use('/api', createProxyMiddleware({
   target: BACKEND_URL,
@@ -39,11 +61,18 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// Create HTTPS server
-const httpsServer = https.createServer(sslOptions, app);
-
-// Start server
-httpsServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`HTTPS Server running at https://0.0.0.0:${PORT}/`);
-});
-
+// Create server based on SSL availability
+if (sslOptions) {
+  // Create HTTPS server if SSL is available
+  const httpsServer = https.createServer(sslOptions, app);
+  
+  // Start HTTPS server
+  httpsServer.listen(PORT, '0.0.0.0', () => {
+    console.log(`HTTPS Server running at https://0.0.0.0:${PORT}/`);
+  });
+} else {
+  // Fallback to HTTP server
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`HTTP Server running at http://0.0.0.0:${PORT}/`);
+  });
+}
