@@ -18,6 +18,9 @@ const sslOptions = {
   cert: fs.readFileSync(process.env.SSL_CERT_PATH || 'path/to/certificate.crt')
 };
 
+console.log("reading ssl data from: ")
+console.log(process.env.SSL_KEY_PATH || 'path/to/private.key')
+console.log(process.env.SSL_CERT_PATH || 'path/to/certificate.key')
 // Proxy middleware configuration
 app.use('/api', createProxyMiddleware({
   target: BACKEND_URL,
