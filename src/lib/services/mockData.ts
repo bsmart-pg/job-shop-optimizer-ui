@@ -24,7 +24,8 @@ export const getMockSchedule = (): Schedule => ({
       line: null,
       startCleaningDateTime: null,
       startProductionDateTime: null,
-      endDateTime: null
+      endDateTime: null,
+      customerName: "Sample Customer" // Added customerName
     }
   ],
   excludedJobs: [],
