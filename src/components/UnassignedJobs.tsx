@@ -5,6 +5,7 @@ import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { PaginationControls } from './pagination/PaginationControls';
 import { Skeleton } from './ui/skeleton';
+import { mergeConsecutiveJobs } from '@/lib/scheduleUtils';
 
 interface UnassignedJobsProps {
   jobs: Job[];
@@ -12,11 +13,12 @@ interface UnassignedJobsProps {
 
 export function UnassignedJobs({ jobs }: UnassignedJobsProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9; // Changed from 6 to 9 items per page
+  const itemsPerPage = 9;
   
-  // Memoize the filtered jobs list to prevent unnecessary recomputation
+  // First filter unassigned jobs, then merge them
   const unassignedJobs = useMemo(() => {
-    return jobs.filter(job => job.line === null || !job.startProductionDateTime);
+    const unassigned = jobs.filter(job => job.line === null || !job.startProductionDateTime);
+    return mergeConsecutiveJobs(unassigned);
   }, [jobs]);
   
   const totalPages = Math.ceil(unassignedJobs.length / itemsPerPage);
