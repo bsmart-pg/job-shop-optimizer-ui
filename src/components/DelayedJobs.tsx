@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useCallback } from 'react';
 import { Job } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -80,6 +79,10 @@ export function DelayedJobs({ jobs }: DelayedJobsProps) {
                   <CardContent className="p-4">
                     <h3 className="font-medium text-lg mb-2">{job.name}</h3>
                     <div className="space-y-1 text-sm">
+                      <p>
+                        <span className="text-muted-foreground">Kunde:</span>{' '}
+                        {job.customerName}
+                      </p>
                       <p>
                         <span className="text-muted-foreground">Verspätung:</span>{' '}
                         <span className="text-destructive font-medium">

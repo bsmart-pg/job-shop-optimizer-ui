@@ -1,4 +1,3 @@
-
 export interface Line {
   id: string;
   name: string;
@@ -23,6 +22,7 @@ export interface Job {
   startCleaningDateTime: string | null;
   startProductionDateTime: string | null;
   endDateTime: string | null;
+  customerName: string;
 }
 
 export interface WorkCalendar {
