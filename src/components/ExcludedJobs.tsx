@@ -8,15 +8,16 @@ import { PaginationControls } from './pagination/PaginationControls';
 import { Skeleton } from './ui/skeleton';
 import { Checkbox } from './ui/checkbox';
 import { Button } from './ui/button';
-import { fetchWithTimeout } from '@/lib/utils/fetchUtils';
+import { putBackExcludedJobs } from '@/lib/services/scheduleService';
 import { useToast } from '@/hooks/use-toast';
 import { mergeConsecutiveJobs } from '@/lib/scheduleUtils';
 
 interface ExcludedJobsProps {
   jobs: Job[];
+  onJobsUpdated?: () => void;
 }
 
-export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
+export function ExcludedJobs({ jobs, onJobsUpdated }: ExcludedJobsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedJobs, setSelectedJobs] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -87,13 +88,7 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
     setIsSubmitting(true);
     
     try {
-      await fetchWithTimeout('/api/schedule/putBackExcludedJob', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(selectedJobIds),
-      });
+      await putBackExcludedJobs(selectedJobIds);
       
       toast({
         title: "Erfolg",
@@ -102,6 +97,11 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
       
       // Reset selection after successful submission
       setSelectedJobs({});
+      
+      // Trigger schedule refresh if callback is provided
+      if (onJobsUpdated) {
+        onJobsUpdated();
+      }
       
     } catch (error) {
       console.error("Failed to put back jobs:", error);

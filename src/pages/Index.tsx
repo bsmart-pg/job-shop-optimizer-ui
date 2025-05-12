@@ -115,7 +115,10 @@ const Index = () => {
               <OnTimeRate jobs={schedule.jobs} />
               <DelayedJobs jobs={schedule.jobs} />
               <UnassignedJobs jobs={schedule.jobs} />
-              <ExcludedJobs jobs={schedule.excludedJobs} />
+              <ExcludedJobs 
+                jobs={schedule.excludedJobs} 
+                onJobsUpdated={refreshSchedule} 
+              />
             </>
           )}
         </>
