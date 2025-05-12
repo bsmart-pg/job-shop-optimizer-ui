@@ -206,7 +206,7 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
             onClick={handlePutBackSelectedJobs}
             disabled={selectedJobCount === 0 || isSubmitting}
           >
-            {isSubmitting ? 'Wird bearbeitet...' : 'Ausgewählte Jobs zurückgeben'}
+            {isSubmitting ? 'Wird bearbeitet...' : 'Ausgewählte Jobs zurücklegen'}
           </Button>
         </CardFooter>
       )}
