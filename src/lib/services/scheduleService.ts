@@ -98,3 +98,19 @@ export const resetSchedule = async (): Promise<void> => {
     throw error;
   }
 };
+
+export const putBackExcludedJobs = async (jobIds: string[]): Promise<void> => {
+  try {
+    await fetchWithTimeout('/api/schedule/putBackExcludedJob', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(jobIds),
+    });
+    cachedSchedule = null; // Clear cache to get updated data after putting back jobs
+  } catch (error) {
+    console.error("Failed to put back excluded jobs:", error);
+    throw error;
+  }
+};

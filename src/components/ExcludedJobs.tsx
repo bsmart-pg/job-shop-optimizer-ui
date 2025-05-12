@@ -1,10 +1,16 @@
+
 import { useState, useMemo, useCallback } from 'react';
 import { Job } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { PaginationControls } from './pagination/PaginationControls';
 import { Skeleton } from './ui/skeleton';
+import { Checkbox } from './ui/checkbox';
+import { Button } from './ui/button';
+import { fetchWithTimeout } from '@/lib/utils/fetchUtils';
+import { useToast } from '@/hooks/use-toast';
+import { mergeConsecutiveJobs } from '@/lib/scheduleUtils';
 
 interface ExcludedJobsProps {
   jobs: Job[];
@@ -12,11 +18,15 @@ interface ExcludedJobsProps {
 
 export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9; // Changed from 6 to 9 items per page
+  const [selectedJobs, setSelectedJobs] = useState<Record<string, boolean>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const itemsPerPage = 9;
   
-  // Memoize the filtered jobs list to prevent unnecessary recomputation
+  // Memoize the filtered and merged jobs list
   const excludedJobs = useMemo(() => {
-    return jobs.filter(job => job.line === null || !job.startProductionDateTime);
+    const filtered = jobs.filter(job => job.line === null || !job.startProductionDateTime);
+    return mergeConsecutiveJobs(filtered);
   }, [jobs]);
   
   const totalPages = Math.ceil(excludedJobs.length / itemsPerPage);
@@ -46,11 +56,75 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
     setCurrentPage(page);
   }, []);
   
+  // Handle job selection
+  const handleJobSelection = useCallback((jobId: string) => {
+    setSelectedJobs(prev => ({
+      ...prev,
+      [jobId]: !prev[jobId]
+    }));
+  }, []);
+  
+  // Get selected job count
+  const selectedJobCount = useMemo(() => {
+    return Object.values(selectedJobs).filter(Boolean).length;
+  }, [selectedJobs]);
+  
+  // Handle put back selected jobs
+  const handlePutBackSelectedJobs = async () => {
+    const selectedJobIds = Object.entries(selectedJobs)
+      .filter(([_, isSelected]) => isSelected)
+      .map(([jobId]) => jobId);
+    
+    if (selectedJobIds.length === 0) {
+      toast({
+        title: "Keine Jobs ausgewählt",
+        description: "Bitte wählen Sie mindestens einen Job aus.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      await fetchWithTimeout('/api/schedule/putBackExcludedJob', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(selectedJobIds),
+      });
+      
+      toast({
+        title: "Erfolg",
+        description: `${selectedJobIds.length} Job(s) wurden zurück in den Produktionsplan übernommen.`,
+      });
+      
+      // Reset selection after successful submission
+      setSelectedJobs({});
+      
+    } catch (error) {
+      console.error("Failed to put back jobs:", error);
+      toast({
+        title: "Fehler",
+        description: "Die Jobs konnten nicht zurückgegeben werden. Bitte versuchen Sie es später erneut.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
   return (
     <Card className="mb-8">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span>Ausgeschlossene Jobs ({excludedJobs.length})</span>
+          {selectedJobCount > 0 && (
+            <span className="text-sm font-normal">
+              {selectedJobCount} Job(s) ausgewählt
+            </span>
+          )}
         </CardTitle>
         <CardDescription className="text-lg">
           Für Produkte dieser Jobs beträgt die Produktionszeit für das akkumulierte Auftragsvolumen weniger als 2h.
@@ -64,7 +138,14 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {paginatedJobs.map((job) => (
-                <Card key={job.id} className="border">
+                <Card key={job.id} className="border relative">
+                  <div className="absolute top-2 right-2">
+                    <Checkbox 
+                      id={`job-${job.id}`}
+                      checked={!!selectedJobs[job.id]}
+                      onCheckedChange={() => handleJobSelection(job.id)}
+                    />
+                  </div>
                   <CardContent className="p-4">
                     <h3 className="font-medium text-lg mb-2">{job.name}</h3>
                     <div className="space-y-1 text-sm">
@@ -117,6 +198,18 @@ export function ExcludedJobs({ jobs }: ExcludedJobsProps) {
           </>
         )}
       </CardContent>
+      
+      {excludedJobs.length > 0 && (
+        <CardFooter className="flex justify-end">
+          <Button 
+            variant="default" 
+            onClick={handlePutBackSelectedJobs}
+            disabled={selectedJobCount === 0 || isSubmitting}
+          >
+            {isSubmitting ? 'Wird bearbeitet...' : 'Ausgewählte Jobs zurückgeben'}
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }
