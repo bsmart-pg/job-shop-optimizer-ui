@@ -17,13 +17,13 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     // Only keep up to 2 files (as per the original implementation)
-    const newFiles = [...files, ...acceptedFiles].slice(0, 2);
+    const newFiles = [...files, ...acceptedFiles].slice(0, 3);
     setFiles(newFiles);
   }, [files]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
-    maxFiles: 2
+    maxFiles: 3
   });
 
   const handleUpload = async () => {
@@ -82,7 +82,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
             ) : (
               <>
                 <p className="text-sm font-medium">Dateien hierher ziehen oder klicken zum Auswählen</p>
-                <p className="text-xs text-muted-foreground">Maximal 2 Dateien</p>
+                <p className="text-xs text-muted-foreground">Maximal 3 Dateien</p>
               </>
             )}
           </div>
