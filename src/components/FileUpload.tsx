@@ -24,7 +24,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       // Check if file is Excel format
-      if (!file.name.endsWith('.xlsx')) {
+      if (!file.name.toLowerCase().endsWith('.xlsx')) {
         setError('Bitte nur Excel-Dateien (.xlsx) hochladen');
         setFile(null);
         return;
