@@ -1,49 +1,70 @@
-import { useState, useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
+
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { uploadFiles } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Upload, X, FileCheck } from 'lucide-react';
+import { Loader2, FileCheck, Upload, X, AlertTriangle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface FileUploadProps {
   onUploadSuccess: () => void;
 }
 
 export function FileUpload({ onUploadSuccess }: FileUploadProps) {
-  const [files, setFiles] = useState<File[]>([]);
+  const [masterDataFile, setMasterDataFile] = useState<File | null>(null);
+  const [callOffsFile, setCallOffsFile] = useState<File | null>(null);
+  const [initialSetupFile, setInitialSetupFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    // Only keep up to 2 files (as per the original implementation)
-    const newFiles = [...files, ...acceptedFiles].slice(0, 3);
-    setFiles(newFiles);
-  }, [files]);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setFile: (file: File | null) => void) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      // Check if file is Excel format
+      if (!file.name.endsWith('.xlsx')) {
+        setError('Bitte nur Excel-Dateien (.xlsx) hochladen');
+        setFile(null);
+        return;
+      }
+      setFile(file);
+      setError(null);
+    }
+  };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
-    onDrop,
-    maxFiles: 3
-  });
+  const clearFile = (setFile: (file: File | null) => void) => {
+    setFile(null);
+  };
 
   const handleUpload = async () => {
-    if (files.length === 0) {
-      toast({
-        title: "Error",
-        description: "Please select at least one file to upload",
-        variant: "destructive"
-      });
+    // Check if all files are selected
+    if (!masterDataFile || !callOffsFile || !initialSetupFile) {
+      setError('Bitte wählen Sie alle drei Dateien aus');
       return;
     }
 
     setUploading(true);
+    setError(null);
+    
     try {
-      await uploadFiles(files);
+      // Create new File objects with the required names
+      const renamedMasterData = new File([masterDataFile], "masterdata.xlsx", { type: masterDataFile.type });
+      const renamedCallOffs = new File([callOffsFile], "calloffs.xlsx", { type: callOffsFile.type });
+      const renamedInitialSetup = new File([initialSetupFile], "initial_setup.xlsx", { type: initialSetupFile.type });
+      
+      await uploadFiles([renamedMasterData, renamedCallOffs, renamedInitialSetup]);
+      
       toast({
         title: "Success",
         description: "Files uploaded successfully",
       });
-      setFiles([]);
+      
+      // Reset state
+      setMasterDataFile(null);
+      setCallOffsFile(null);
+      setInitialSetupFile(null);
       onUploadSuccess();
     } catch (error) {
       toast({
@@ -56,11 +77,44 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
     }
   };
 
-  const removeFile = (index: number) => {
-    const newFiles = [...files];
-    newFiles.splice(index, 1);
-    setFiles(newFiles);
-  };
+  const renderFileInput = (
+    label: string, 
+    description: string,
+    file: File | null, 
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
+    onClear: () => void
+  ) => (
+    <div className="mb-4">
+      <label className="text-sm font-medium mb-2 block">{label}</label>
+      <p className="text-xs text-muted-foreground mb-2">{description}</p>
+      {file ? (
+        <div className="flex items-center justify-between bg-muted/40 p-3 rounded-md">
+          <div className="flex items-center gap-2">
+            <FileCheck className="h-5 w-5 text-green-600" />
+            <span className="text-sm truncate">{file.name}</span>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClear}
+            disabled={uploading}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
+        <div className="relative">
+          <Input
+            type="file"
+            accept=".xlsx"
+            onChange={onChange}
+            disabled={uploading}
+            className="cursor-pointer"
+          />
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <Card>
@@ -68,51 +122,41 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
         <CardTitle>Datei-Upload</CardTitle>
       </CardHeader>
       <CardContent>
-        <div
-          {...getRootProps()}
-          className={`border-2 border-dashed rounded-md p-6 cursor-pointer mb-4 ${
-            isDragActive ? 'border-primary bg-primary/5' : 'border-border'
-          }`}
-        >
-          <input {...getInputProps()} />
-          <div className="flex flex-col items-center justify-center gap-2 text-center">
-            <Upload className="h-10 w-10 text-muted-foreground" />
-            {isDragActive ? (
-              <p>Dateien hier ablegen...</p>
-            ) : (
-              <>
-                <p className="text-sm font-medium">Dateien hierher ziehen oder klicken zum Auswählen</p>
-                <p className="text-xs text-muted-foreground">Maximal 3 Dateien</p>
-              </>
-            )}
-          </div>
-        </div>
-
-        {files.length > 0 && (
-          <div className="space-y-2 my-4">
-            {files.map((file, index) => (
-              <div key={index} className="flex items-center justify-between bg-muted/40 p-2 rounded-md">
-                <div className="flex items-center gap-2">
-                  <FileCheck className="h-5 w-5 text-green-600" />
-                  <span className="text-sm truncate">{file.name}</span>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => removeFile(index)}
-                  disabled={uploading}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        
+        {renderFileInput(
+          "Master Daten", 
+          "Stammdaten für die Produktion",
+          masterDataFile, 
+          (e) => handleFileChange(e, setMasterDataFile), 
+          () => clearFile(setMasterDataFile)
+        )}
+        
+        {renderFileInput(
+          "Call-Off Daten", 
+          "Abrufdaten für die Produktion",
+          callOffsFile, 
+          (e) => handleFileChange(e, setCallOffsFile), 
+          () => clearFile(setCallOffsFile)
+        )}
+        
+        {renderFileInput(
+          "Initial Setup", 
+          "Initiale Konfigurationsdaten",
+          initialSetupFile, 
+          (e) => handleFileChange(e, setInitialSetupFile), 
+          () => clearFile(setInitialSetupFile)
         )}
 
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-6">
           <Button 
             onClick={handleUpload} 
-            disabled={files.length === 0 || uploading}
+            disabled={!masterDataFile || !callOffsFile || !initialSetupFile || uploading}
           >
             {uploading ? (
               <>
@@ -120,7 +164,10 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
                 Uploading...
               </>
             ) : (
-              'Hochladen'
+              <>
+                <Upload className="mr-2 h-4 w-4" />
+                Alle Dateien hochladen
+              </>
             )}
           </Button>
         </div>
