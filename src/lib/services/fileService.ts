@@ -1,4 +1,3 @@
-
 import { fetchWithTimeout } from "../utils/fetchUtils";
 
 export const uploadFiles = async (files: File[]): Promise<string> => {
@@ -40,25 +39,6 @@ export const setTimeframe = async (startDate: string, endDate: string): Promise<
     }
   } catch (error) {
     console.error("Failed to set timeframe:", error);
-    throw error;
-  }
-};
-
-export const putBackExcludedJobs = async (jobIds: string[]): Promise<void> => {
-  try {
-    const response = await fetchWithTimeout('/api/schedule/putBackExcludedJob', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(jobIds),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to put back excluded jobs');
-    }
-  } catch (error) {
-    console.error("Failed to put back excluded jobs:", error);
     throw error;
   }
 };
