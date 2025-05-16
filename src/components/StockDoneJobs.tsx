@@ -21,9 +21,18 @@ export const StockDoneJobs = ({ jobs }: StockDoneJobsProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9; // Same as other job display components
   
-  // Filter out empty data
+  // Filter out empty data and sort by due date
   const stockDoneJobs = useMemo(() => {
-    return jobs || [];
+    // First ensure we have valid jobs data
+    if (!jobs || jobs.length === 0) return [];
+    
+    // Sort jobs by due date (ascending)
+    return [...jobs].sort((a, b) => {
+      if (!a.dueDateTime && !b.dueDateTime) return 0;
+      if (!a.dueDateTime) return 1; // null values go to the end
+      if (!b.dueDateTime) return -1;
+      return new Date(a.dueDateTime).getTime() - new Date(b.dueDateTime).getTime();
+    });
   }, [jobs]);
   
   const totalPages = Math.ceil(stockDoneJobs.length / itemsPerPage);
