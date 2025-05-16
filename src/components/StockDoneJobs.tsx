@@ -53,12 +53,12 @@ export const StockDoneJobs = ({ jobs }: StockDoneJobsProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Package className="h-5 w-5" />
-          <span>Stock Done Jobs ({stockDoneJobs.length})</span>
+          <span>Durch Lagerbestand abgedeckte Jobs ({stockDoneJobs.length})</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         {stockDoneJobs.length === 0 ? (
-          <p className="text-center text-muted-foreground py-4">No stock done jobs available.</p>
+          <p className="text-center text-muted-foreground py-4">Keine Jobs durch Lagerbestand abgedeckt.</p>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -68,19 +68,19 @@ export const StockDoneJobs = ({ jobs }: StockDoneJobsProps) => {
                     <h3 className="font-medium text-lg mb-2">{job.name}</h3>
                     <div className="space-y-1 text-sm">
                       <p>
-                        <span className="text-muted-foreground">Customer:</span>{' '}
+                        <span className="text-muted-foreground">Kunde:</span>{' '}
                         {job.customerName}
                       </p>
                       <p>
-                        <span className="text-muted-foreground">Product:</span>{' '}
+                        <span className="text-muted-foreground">Produkt:</span>{' '}
                         {job.product.name}
                       </p>
                       <p>
-                        <span className="text-muted-foreground">Used Stock:</span>{' '}
+                        <span className="text-muted-foreground">Beanspruchter Bestand:</span>{' '}
                         <span className="font-semibold">{job.usedStock !== undefined ? job.usedStock : "N/A"}</span>
                       </p>
                       <p>
-                        <span className="text-muted-foreground">Due Date:</span>{' '}
+                        <span className="text-muted-foreground">Fälligkeitsdatum:</span>{' '}
                         {job.dueDateTime 
                           ? format(parseISO(job.dueDateTime), "dd.MM.yyyy HH:mm", { locale: de })
                           : "N/A"}
