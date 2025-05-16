@@ -25,6 +25,7 @@ export interface Job {
   endDateTime: string | null;
   customerName: string;
   usedStock?: number;
+  quantity?: number;
 }
 
 export interface WorkCalendar {
@@ -39,6 +40,7 @@ export interface Schedule {
   jobs: Job[];
   excludedJobs: Job[];
   stockDoneJobs: Job[];
+  partiallyStockDoneJobs: Job[];
   workCalendar: WorkCalendar;
 }
 

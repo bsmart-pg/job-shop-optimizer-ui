@@ -15,6 +15,7 @@ import { ExcludedJobs } from "@/components/ExcludedJobs";
 import { OnTimeRate } from "@/components/OnTimeRate";
 import { DelayedJobs } from "@/components/DelayedJobs";
 import { StockDoneJobs } from "@/components/StockDoneJobs";
+import { PartiallyStockDoneJobs } from "@/components/PartiallyStockDoneJobs";
 
 const Index = () => {
   const {
@@ -117,6 +118,7 @@ const Index = () => {
               <OnTimeRate jobs={schedule.jobs} />
               <DelayedJobs jobs={schedule.jobs} />
               <StockDoneJobs jobs={schedule.stockDoneJobs || []} />
+              <PartiallyStockDoneJobs jobs={schedule.partiallyStockDoneJobs || []} />
               <UnassignedJobs jobs={schedule.jobs} />
               <ExcludedJobs 
                 jobs={schedule.excludedJobs} 
