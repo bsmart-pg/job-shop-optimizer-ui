@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { JobShopHeader } from "@/components/JobShopHeader";
 import { FileUpload } from "@/components/FileUpload";
@@ -13,6 +14,7 @@ import { Spinner } from "@/components/Spinner";
 import { ExcludedJobs } from "@/components/ExcludedJobs";
 import { OnTimeRate } from "@/components/OnTimeRate";
 import { DelayedJobs } from "@/components/DelayedJobs";
+import { StockDoneJobs } from "@/components/StockDoneJobs";
 
 const Index = () => {
   const {
@@ -114,6 +116,7 @@ const Index = () => {
               
               <OnTimeRate jobs={schedule.jobs} />
               <DelayedJobs jobs={schedule.jobs} />
+              <StockDoneJobs jobs={schedule.stockDoneJobs || []} />
               <UnassignedJobs jobs={schedule.jobs} />
               <ExcludedJobs 
                 jobs={schedule.excludedJobs} 

@@ -1,3 +1,4 @@
+
 export interface Line {
   id: string;
   name: string;
@@ -23,6 +24,7 @@ export interface Job {
   startProductionDateTime: string | null;
   endDateTime: string | null;
   customerName: string;
+  usedStock?: number;
 }
 
 export interface WorkCalendar {
@@ -36,6 +38,7 @@ export interface Schedule {
   lines: Line[];
   jobs: Job[];
   excludedJobs: Job[];
+  stockDoneJobs: Job[];
   workCalendar: WorkCalendar;
 }
 
