@@ -31,6 +31,10 @@ const Index = () => {
   const [selectedView, setSelectedView] = useState<string>("byLine");
   const [selectedJob, setSelectedJob] = useState<any>(null);
 
+  // Debug log to check schedule data
+  console.log("Schedule data:", schedule);
+  console.log("Partially stock done jobs:", schedule?.partiallyStockDoneJobs);
+
   const handleUploadSuccess = () => {
     resetSchedule();
     refreshSchedule();

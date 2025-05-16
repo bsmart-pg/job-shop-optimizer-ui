@@ -22,6 +22,8 @@ export const PartiallyStockDoneJobs = ({ jobs }: PartiallyStockDoneJobsProps) =>
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9; // Same as other job display components
   
+  console.log("PartiallyStockDoneJobs component received jobs:", jobs);
+  
   // Filter out empty data and sort by due date
   const partiallyStockDoneJobs = useMemo(() => {
     // First ensure we have valid jobs data
@@ -56,7 +58,8 @@ export const PartiallyStockDoneJobs = ({ jobs }: PartiallyStockDoneJobsProps) =>
     setCurrentPage(page);
   }, []);
 
-  if (!partiallyStockDoneJobs || partiallyStockDoneJobs.length === 0) return null;
+  // Remove this condition to always render the component
+  // if (!partiallyStockDoneJobs || partiallyStockDoneJobs.length === 0) return null;
 
   return (
     <Card className="mb-8">
