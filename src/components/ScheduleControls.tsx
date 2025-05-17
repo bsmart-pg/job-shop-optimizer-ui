@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { RefreshCw, Play, Square, Download, CalendarRange } from "lucide-react";
+import { RefreshCw, Play, Square, Download, CalendarRange, Save, Check } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TimeframeSelector } from "@/components/TimeframeSelector";
@@ -9,6 +9,9 @@ import { exportToExcel } from "@/lib/excelExport";
 import { toast } from "@/components/ui/sonner";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
+import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { fetchWithTimeout } from "@/lib/utils/fetchUtils";
 
 interface ScheduleControlsProps {
   score: string | null;
@@ -35,6 +38,9 @@ export function ScheduleControls({
   workCalendarFromDate,
   workCalendarToDate,
 }: ScheduleControlsProps) {
+  const [nightshift, setNightshift] = useState<boolean>(false);
+  const [savingNightshift, setSavingNightshift] = useState<boolean>(false);
+
   // Formatting helper
   let timeframeLabel = null;
   if (workCalendarFromDate && workCalendarToDate) {
@@ -49,6 +55,26 @@ export function ScheduleControls({
   } else {
     timeframeLabel = "Zeitraum: —";
   }
+
+  const handleSaveNightshift = async () => {
+    setSavingNightshift(true);
+    try {
+      await fetchWithTimeout('/api/schedule/setNightshift', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(nightshift)
+      });
+      
+      toast.success("Nachtschicht-Einstellung erfolgreich gespeichert");
+    } catch (error) {
+      console.error("Error saving nightshift setting:", error);
+      toast.error("Fehler beim Speichern der Nachtschicht-Einstellung");
+    } finally {
+      setSavingNightshift(false);
+    }
+  };
 
   return (
     <Card className="p-4 mb-6 space-y-4">
@@ -116,9 +142,45 @@ export function ScheduleControls({
           </TabsList>
         </Tabs>
       </div>
-      <div className="flex items-center gap-2 pt-2">
-        <CalendarRange className="h-4 w-4 text-muted-foreground" />
-        <span className="text-muted-foreground text-sm">{timeframeLabel}</span>
+
+      <div className="flex flex-row justify-between items-center border-t pt-4">
+        <div className="flex items-center gap-2">
+          <CalendarRange className="h-4 w-4 text-muted-foreground" />
+          <span className="text-muted-foreground text-sm">{timeframeLabel}</span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="nightshift" 
+              checked={nightshift} 
+              onCheckedChange={(checked) => setNightshift(checked === true)}
+            />
+            <label
+              htmlFor="nightshift"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Nachtschicht aktivieren
+            </label>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleSaveNightshift}
+            disabled={savingNightshift}
+          >
+            {savingNightshift ? (
+              <span className="flex items-center">
+                <Spinner size="sm" className="mr-2" />Speichern...
+              </span>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Speichern
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </Card>
   );

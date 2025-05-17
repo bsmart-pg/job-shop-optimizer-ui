@@ -1,4 +1,3 @@
-
 import { Schedule } from "../types";
 import { fetchWithTimeout } from "../utils/fetchUtils";
 import { getMockSchedule } from "./mockData";
@@ -111,6 +110,22 @@ export const putBackExcludedJobs = async (jobIds: string[]): Promise<void> => {
     cachedSchedule = null; // Clear cache to get updated data after putting back jobs
   } catch (error) {
     console.error("Failed to put back excluded jobs:", error);
+    throw error;
+  }
+};
+
+export const setNightshift = async (enabled: boolean): Promise<void> => {
+  try {
+    await fetchWithTimeout('/api/schedule/setNightshift', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(enabled),
+    });
+    cachedSchedule = null; // Clear cache to get updated data after setting nightshift
+  } catch (error) {
+    console.error("Failed to set nightshift:", error);
     throw error;
   }
 };
