@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useCallback } from 'react';
 import { Job } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +6,7 @@ import { de } from 'date-fns/locale';
 import { PaginationControls } from './pagination/PaginationControls';
 import { Skeleton } from './ui/skeleton';
 import { Badge } from './ui/badge';
+import { mergeUnassignedJobs } from '@/lib/scheduleUtils';
 
 interface UnassignedJobsProps {
   jobs: Job[];
@@ -16,13 +16,16 @@ export function UnassignedJobs({ jobs }: UnassignedJobsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9; // Changed from 6 to 9 items per page
   
-  // Memoize the filtered jobs list to prevent unnecessary recomputation
+  // Memoize the filtered and merged jobs list to prevent unnecessary recomputation
   const unassignedJobs = useMemo(() => {
     // Filter unassigned jobs
     const filtered = jobs.filter(job => job.line === null || !job.startProductionDateTime);
     
+    // Merge similar unassigned jobs
+    const merged = mergeUnassignedJobs(filtered);
+    
     // Sort by due date (ascending)
-    return filtered.sort((a, b) => {
+    return merged.sort((a, b) => {
       return new Date(a.dueDateTime).getTime() - new Date(b.dueDateTime).getTime();
     });
   }, [jobs]);

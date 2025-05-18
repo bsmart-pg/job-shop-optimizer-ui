@@ -1,4 +1,3 @@
-
 import { Schedule } from "../types";
 import { fetchWithTimeout } from "../utils/fetchUtils";
 import { getMockSchedule } from "./mockData";

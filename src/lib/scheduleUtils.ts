@@ -1,4 +1,3 @@
-
 import { Job } from './types';
 
 export function mergeConsecutiveJobs(jobs: Job[]): Job[] {
@@ -86,6 +85,69 @@ export function mergeConsecutiveJobs(jobs: Job[]): Job[] {
   
   // Combine unassigned jobs with the merged jobs by line
   return [...unassignedJobs, ...mergedJobsByLine];
+}
+
+// New function to merge unassigned jobs
+export function mergeUnassignedJobs(jobs: Job[]): Job[] {
+  if (jobs.length <= 1) return jobs;
+  
+  // Group jobs by the combination of criteria
+  const jobGroups: Record<string, Job[]> = {};
+  
+  jobs.forEach(job => {
+    // Create a unique key combining all criteria
+    const key = [
+      job.customerName || '',
+      job.recipient || '',
+      job.orderNumber || '',
+      job.dueDateTime || '',
+      job.product.id || '',
+    ].join('|');
+    
+    if (!jobGroups[key]) {
+      jobGroups[key] = [];
+    }
+    
+    jobGroups[key].push(job);
+  });
+  
+  // Merge jobs within each group
+  const mergedJobs: Job[] = [];
+  
+  Object.values(jobGroups).forEach(group => {
+    if (group.length === 1) {
+      // Single job in group, no merging needed
+      mergedJobs.push(group[0]);
+    } else {
+      // Multiple jobs with same criteria, merge them
+      console.log(`Merging ${group.length} unassigned jobs with same criteria`);
+      
+      // Use the first job as a base and update quantity
+      const baseJob = { ...group[0] };
+      
+      // Calculate total quantity
+      const totalQuantity = group.reduce((sum, job) => {
+        return sum + (job.quantity !== undefined ? job.quantity : 0);
+      }, 0);
+      
+      // Calculate total duration
+      const totalDuration = group.reduce((sum, job) => sum + job.duration, 0);
+      
+      // Create merged job with updated quantity and duration
+      baseJob.quantity = totalQuantity;
+      baseJob.duration = totalDuration;
+      
+      // Update the name to reflect the merged state
+      const productName = getProductName(baseJob);
+      baseJob.name = `${productName} x ${totalQuantity || group.length}`;
+      
+      mergedJobs.push(baseJob);
+      
+      console.log(`Created merged job: ${baseJob.name} with duration ${totalDuration}`);
+    }
+  });
+  
+  return mergedJobs;
 }
 
 // Helper function to check if two jobs have the same due date

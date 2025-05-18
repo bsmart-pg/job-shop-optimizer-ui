@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Schedule, Job } from './types';
-import { mergeConsecutiveJobs } from './scheduleUtils';
+import { mergeConsecutiveJobs, mergeUnassignedJobs } from './scheduleUtils';
 import { fetchWithTimeout } from './utils/fetchUtils';
 
 export const exportToExcel = async () => {
@@ -18,12 +18,12 @@ export const exportToExcel = async () => {
     console.log('Original jobs before merging for Excel export:', schedule.jobs.length);
     
     // Apply the same merging logic used in the timeline
-    const mergedJobs = mergeConsecutiveJobs(schedule.jobs);
-    console.log('Jobs after merging for Excel export:', mergedJobs.length);
+    const mergedAssignedJobs = mergeConsecutiveJobs(schedule.jobs);
+    console.log('Jobs after merging for Excel export:', mergedAssignedJobs.length);
     
     // Count jobs by due date after merging
     const dueDateCount: Record<string, number> = {};
-    mergedJobs.forEach((job: Job) => {
+    mergedAssignedJobs.forEach((job: Job) => {
       if (job.dueDateTime) {
         const dueDate = job.dueDateTime;
         dueDateCount[dueDate] = (dueDateCount[dueDate] || 0) + 1;
@@ -32,7 +32,7 @@ export const exportToExcel = async () => {
     console.log('Jobs per due date after merging for Excel export:', dueDateCount);
     
     // Transform merged jobs into Excel data rows
-    const data = mergedJobs
+    const data = mergedAssignedJobs
       .filter(job => job.line) // Only include assigned jobs
       .map((job: Job) => ({
         'Job': job.name.split(" x ")[0],
