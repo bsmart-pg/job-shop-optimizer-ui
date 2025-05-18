@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { RefreshCw, Play, Square, Download, CalendarRange, Save, Check } from "lucide-react";
+import { RefreshCw, Play, Square, Download, CalendarRange } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TimeframeSelector } from "@/components/TimeframeSelector";
@@ -12,6 +13,7 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { fetchWithTimeout } from "@/lib/utils/fetchUtils";
 import { Spinner } from "@/components/Spinner";
+import { resetSchedule } from "@/lib/services/scheduleService";
 
 interface ScheduleControlsProps {
   score: string | null;
@@ -67,7 +69,13 @@ export function ScheduleControls({
         body: JSON.stringify(nightshift)
       });
       
+      // Reset the schedule after saving nightshift settings
+      await resetSchedule();
+      
       toast.success("Nachtschicht-Einstellung erfolgreich gespeichert");
+      
+      // Refresh the schedule data
+      onRefresh();
     } catch (error) {
       console.error("Error saving nightshift setting:", error);
       toast.error("Fehler beim Speichern der Nachtschicht-Einstellung");
