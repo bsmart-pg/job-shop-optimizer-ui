@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataSet } from 'vis-data';
@@ -207,6 +208,13 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div className="space-y-2">
+                  {selectedJob.orderNumber && (
+                    <p className="flex items-center">
+                      <span className="text-muted-foreground mr-1">Bestell-Nr.:</span>
+                      <span>{selectedJob.orderNumber}</span>
+                    </p>
+                  )}
+                
                   {view === 'byLine' && selectedJob.product && (
                     <p className="flex items-center">
                       <span className="text-muted-foreground mr-1">Produkt:</span>

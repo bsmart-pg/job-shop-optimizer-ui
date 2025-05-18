@@ -77,6 +77,10 @@ export function UnassignedJobs({ jobs }: UnassignedJobsProps) {
                         {job.customerName}
                       </p>
                       <p>
+                        <span className="text-muted-foreground">Bestell-Nr.:</span>{' '}
+                        {job.orderNumber || 'N/A'}
+                      </p>
+                      <p>
                         <span className="text-muted-foreground">Kompatible Maschinentypen:</span>{' '}
                         {job.product.compatibleMachines.join(', ')}
                       </p>

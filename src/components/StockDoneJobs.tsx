@@ -81,6 +81,10 @@ export const StockDoneJobs = ({ jobs }: StockDoneJobsProps) => {
                         {job.customerName}
                       </p>
                       <p>
+                        <span className="text-muted-foreground">Bestell-Nr.:</span>{' '}
+                        {job.orderNumber || 'N/A'}
+                      </p>
+                      <p>
                         <span className="text-muted-foreground">Produkt:</span>{' '}
                         {job.product.name}
                       </p>
