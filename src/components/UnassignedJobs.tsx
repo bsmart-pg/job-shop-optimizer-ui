@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useCallback } from 'react';
 import { Job } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +17,13 @@ export function UnassignedJobs({ jobs }: UnassignedJobsProps) {
   
   // Memoize the filtered jobs list to prevent unnecessary recomputation
   const unassignedJobs = useMemo(() => {
-    return jobs.filter(job => job.line === null || !job.startProductionDateTime);
+    // Filter unassigned jobs
+    const filtered = jobs.filter(job => job.line === null || !job.startProductionDateTime);
+    
+    // Sort by due date (ascending)
+    return filtered.sort((a, b) => {
+      return new Date(a.dueDateTime).getTime() - new Date(b.dueDateTime).getTime();
+    });
   }, [jobs]);
   
   const totalPages = Math.ceil(unassignedJobs.length / itemsPerPage);
