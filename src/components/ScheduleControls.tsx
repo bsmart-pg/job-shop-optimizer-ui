@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { RefreshCw, Play, Square, Download, CalendarRange, Save, Check } from "lucide-react";
@@ -12,6 +11,7 @@ import { de } from "date-fns/locale";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { fetchWithTimeout } from "@/lib/utils/fetchUtils";
+import { Spinner } from "@/components/Spinner";
 
 interface ScheduleControlsProps {
   score: string | null;
