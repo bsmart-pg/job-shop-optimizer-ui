@@ -15,11 +15,21 @@ export const exportToExcel = async () => {
     }
     
     const schedule: Schedule = await response.json();
-    console.log('Original jobs before merging:', schedule.jobs.length);
+    console.log('Original jobs before merging for Excel export:', schedule.jobs.length);
     
     // Apply the same merging logic used in the timeline
     const mergedJobs = mergeConsecutiveJobs(schedule.jobs);
     console.log('Jobs after merging for Excel export:', mergedJobs.length);
+    
+    // Count jobs by due date after merging
+    const dueDateCount: Record<string, number> = {};
+    mergedJobs.forEach((job: Job) => {
+      if (job.dueDateTime) {
+        const dueDate = job.dueDateTime;
+        dueDateCount[dueDate] = (dueDateCount[dueDate] || 0) + 1;
+      }
+    });
+    console.log('Jobs per due date after merging for Excel export:', dueDateCount);
     
     // Transform merged jobs into Excel data rows
     const data = mergedJobs

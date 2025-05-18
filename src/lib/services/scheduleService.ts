@@ -1,3 +1,4 @@
+
 import { Schedule } from "../types";
 import { fetchWithTimeout } from "../utils/fetchUtils";
 import { getMockSchedule } from "./mockData";
@@ -22,26 +23,44 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
     
     // Count jobs per line before merging
     const lineCountBefore: Record<string, number> = {};
+    const dueDateCountBefore: Record<string, number> = {};
+    
     data.jobs.forEach((job: any) => {
       if (job.line) {
         const lineId = job.line.id;
         lineCountBefore[lineId] = (lineCountBefore[lineId] || 0) + 1;
+        
+        // Count by due date
+        if (job.dueDateTime) {
+          const dueDate = new Date(job.dueDateTime).toISOString();
+          dueDateCountBefore[dueDate] = (dueDateCountBefore[dueDate] || 0) + 1;
+        }
       }
     });
     console.log("Jobs per line before merging:", lineCountBefore);
+    console.log("Jobs per due date before merging:", dueDateCountBefore);
     
     const mergedJobs = mergeConsecutiveJobs(data.jobs);
     
     console.log("Merged jobs after processing:", mergedJobs.length);
     
     const lineCountAfter: Record<string, number> = {};
+    const dueDateCountAfter: Record<string, number> = {};
+    
     mergedJobs.forEach((job: any) => {
       if (job.line) {
         const lineId = job.line.id;
         lineCountAfter[lineId] = (lineCountAfter[lineId] || 0) + 1;
+        
+        // Count by due date
+        if (job.dueDateTime) {
+          const dueDate = new Date(job.dueDateTime).toISOString();
+          dueDateCountAfter[dueDate] = (dueDateCountAfter[dueDate] || 0) + 1;
+        }
       }
     });
     console.log("Jobs per line after merging:", lineCountAfter);
+    console.log("Jobs per due date after merging:", dueDateCountAfter);
     
     const processedData = {
       ...data,

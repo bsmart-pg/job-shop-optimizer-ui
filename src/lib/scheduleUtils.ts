@@ -1,3 +1,4 @@
+
 import { Job } from './types';
 
 export function mergeConsecutiveJobs(jobs: Job[]): Job[] {
@@ -51,15 +52,24 @@ export function mergeConsecutiveJobs(jobs: Job[]): Job[] {
       const currentProductName = getProductName(currentJob);
       const lastProductName = getProductName(lastJobInChain);
       
-      // Check if jobs can be chained (same product and consecutive times)
+      // Check if jobs can be chained (same product, consecutive times, and same due date)
       const isConsecutive = lastJobInChain.endDateTime === currentJob.startCleaningDateTime;
       const isSameProduct = currentProductName === lastProductName;
+      const isSameDueDate = isSameDueDateTime(lastJobInChain, currentJob);
       
-      if (isConsecutive && isSameProduct) {
+      // Log the merging decision factors
+      console.log(`Checking jobs for merging: ${lastJobInChain.id} and ${currentJob.id}`);
+      console.log(`- Same product: ${isSameProduct} (${lastProductName} vs ${currentProductName})`);
+      console.log(`- Consecutive times: ${isConsecutive}`);
+      console.log(`- Same due date: ${isSameDueDate} (${lastJobInChain.dueDateTime} vs ${currentJob.dueDateTime})`);
+      
+      if (isConsecutive && isSameProduct && isSameDueDate) {
         // Add to current chain
+        console.log(`Merging jobs: ${lastJobInChain.id} and ${currentJob.id}`);
         currentChain.push(currentJob);
       } else {
         // End current chain and start new one
+        console.log(`Cannot merge jobs: ${lastJobInChain.id} and ${currentJob.id}`);
         const mergedJob = mergeJobChain(currentChain);
         if (mergedJob) lineMergedJobs.push(mergedJob);
         currentChain = [currentJob];
@@ -76,6 +86,20 @@ export function mergeConsecutiveJobs(jobs: Job[]): Job[] {
   
   // Combine unassigned jobs with the merged jobs by line
   return [...unassignedJobs, ...mergedJobsByLine];
+}
+
+// Helper function to check if two jobs have the same due date
+function isSameDueDateTime(job1: Job, job2: Job): boolean {
+  // Handle case when either job doesn't have a due date
+  if (!job1.dueDateTime || !job2.dueDateTime) {
+    return false;
+  }
+  
+  // Convert to Date objects and compare
+  const dueDate1 = new Date(job1.dueDateTime).getTime();
+  const dueDate2 = new Date(job2.dueDateTime).getTime();
+  
+  return dueDate1 === dueDate2;
 }
 
 // Helper function to extract product name from job name
