@@ -174,10 +174,7 @@ export function ScheduleControls({
                 <Spinner size="sm" className="mr-2" />Speichern...
               </span>
             ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                Speichern
-              </>
+              "übernehmen"
             )}
           </Button>
         </div>
