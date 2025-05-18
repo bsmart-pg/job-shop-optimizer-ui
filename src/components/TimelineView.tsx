@@ -214,6 +214,13 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
                       <span>{selectedJob.orderNumber}</span>
                     </p>
                   )}
+                  
+                  {selectedJob.recipient && (
+                    <p className="flex items-center">
+                      <span className="text-muted-foreground mr-1">Warenempfänger:</span>
+                      <span>{selectedJob.recipient}</span>
+                    </p>
+                  )}
                 
                   {view === 'byLine' && selectedJob.product && (
                     <p className="flex items-center">

@@ -89,6 +89,10 @@ export function DelayedJobs({ jobs }: DelayedJobsProps) {
                         {job.orderNumber || 'N/A'}
                       </p>
                       <p>
+                        <span className="text-muted-foreground">Warenempfänger:</span>{' '}
+                        {job.recipient || 'N/A'}
+                      </p>
+                      <p>
                         <span className="text-muted-foreground">Verspätung:</span>{' '}
                         <span className="text-destructive font-medium">
                           {calculateDelay(job.endDateTime!, job.dueDateTime)}

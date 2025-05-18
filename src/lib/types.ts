@@ -26,7 +26,8 @@ export interface Job {
   customerName: string;
   usedStock?: number;
   quantity?: number;
-  orderNumber?: string; // Added the orderNumber property
+  orderNumber?: string;
+  recipient?: string; // Added the recipient property
 }
 
 export interface WorkCalendar {

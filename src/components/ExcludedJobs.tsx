@@ -158,6 +158,10 @@ export function ExcludedJobs({ jobs, onJobsUpdated }: ExcludedJobsProps) {
                         {job.orderNumber || 'N/A'}
                       </p>
                       <p>
+                        <span className="text-muted-foreground">Warenempfänger:</span>{' '}
+                        {job.recipient || 'N/A'}
+                      </p>
+                      <p>
                         <span className="text-muted-foreground">Kompatible Maschinentypen:</span>{' '}
                         {job.product.compatibleMachines.join(', ')}
                       </p>
