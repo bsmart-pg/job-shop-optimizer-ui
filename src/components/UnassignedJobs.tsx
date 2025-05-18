@@ -6,6 +6,7 @@ import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { PaginationControls } from './pagination/PaginationControls';
 import { Skeleton } from './ui/skeleton';
+import { Badge } from './ui/badge';
 
 interface UnassignedJobsProps {
   jobs: Job[];
@@ -83,6 +84,10 @@ export function UnassignedJobs({ jobs }: UnassignedJobsProps) {
                       <p>
                         <span className="text-muted-foreground">Warenempfänger:</span>{' '}
                         {job.recipient || 'N/A'}
+                      </p>
+                      <p>
+                        <span className="text-muted-foreground">Menge:</span>{' '}
+                        <Badge variant="secondary" className="ml-1">{job.quantity !== undefined ? job.quantity : "N/A"}</Badge>
                       </p>
                       <p>
                         <span className="text-muted-foreground">Kompatible Maschinentypen:</span>{' '}

@@ -11,6 +11,7 @@ import { Button } from './ui/button';
 import { putBackExcludedJobs } from '@/lib/services/scheduleService';
 import { useToast } from '@/hooks/use-toast';
 import { mergeConsecutiveJobs } from '@/lib/scheduleUtils';
+import { Badge } from './ui/badge';
 
 interface ExcludedJobsProps {
   jobs: Job[];
@@ -160,6 +161,10 @@ export function ExcludedJobs({ jobs, onJobsUpdated }: ExcludedJobsProps) {
                       <p>
                         <span className="text-muted-foreground">Warenempfänger:</span>{' '}
                         {job.recipient || 'N/A'}
+                      </p>
+                      <p>
+                        <span className="text-muted-foreground">Menge:</span>{' '}
+                        <Badge variant="secondary" className="ml-1">{job.quantity !== undefined ? job.quantity : "N/A"}</Badge>
                       </p>
                       <p>
                         <span className="text-muted-foreground">Kompatible Maschinentypen:</span>{' '}
