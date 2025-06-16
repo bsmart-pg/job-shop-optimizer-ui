@@ -16,6 +16,7 @@ import { OnTimeRate } from "@/components/OnTimeRate";
 import { DelayedJobs } from "@/components/DelayedJobs";
 import { StockDoneJobs } from "@/components/StockDoneJobs";
 import { PartiallyStockDoneJobs } from "@/components/PartiallyStockDoneJobs";
+import { LeergutView } from "@/components/LeergutView";
 
 const Index = () => {
   const {
@@ -106,11 +107,14 @@ const Index = () => {
                     loading={false}
                   />
                 </TabsContent>
+                <TabsContent value="leergut" className="mt-0">
+                  <LeergutView jobs={schedule.jobs} />
+                </TabsContent>
               </Tabs>
             )}
           </div>
           
-          {!solving && (
+          {!solving && selectedView !== "leergut" && (
             <>
               {selectedJob && (
                 <div className="mt-6">

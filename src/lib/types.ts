@@ -1,4 +1,3 @@
-
 export interface Line {
   id: string;
   name: string;
@@ -9,6 +8,10 @@ export interface Product {
   id: string;
   name: string;
   compatibleMachines: string[];
+  compatiblePackaging: string | null;
+  compatibleCarrier: string;
+  neededPackagingAmount: number | null;
+  neededCarrierAmount: number;
 }
 
 export interface Job {

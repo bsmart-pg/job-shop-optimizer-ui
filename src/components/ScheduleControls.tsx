@@ -147,6 +147,7 @@ export function ScheduleControls({
           <TabsList>
             <TabsTrigger value="byLine">Produktionslinienansicht</TabsTrigger>
             <TabsTrigger value="byJob">Jobansicht</TabsTrigger>
+            <TabsTrigger value="leergut">Leergut-Ansicht</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
