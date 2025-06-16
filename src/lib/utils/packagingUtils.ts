@@ -34,8 +34,11 @@ export const calculateDailyPackagingNeeds = (jobs: Job[]): PackagingRequirement[
     const date = format(startOfDay(new Date(startDateTime)), 'yyyy-MM-dd');
     const quantity = job.quantity || 0;
     
+    // Skip if quantity is 0 or if product doesn't exist
+    if (quantity === 0 || !job.product) return;
+    
     // Only calculate packaging if the product has compatible packaging
-    if (job.product.compatiblePackaging && job.product.neededPackagingAmount) {
+    if (job.product.compatiblePackaging && job.product.neededPackagingAmount && job.product.neededPackagingAmount > 0) {
       const packagingType = job.product.compatiblePackaging;
       const packagingNeeded = Math.ceil(quantity / job.product.neededPackagingAmount);
       
@@ -71,11 +74,17 @@ export const calculateDailyCarrierNeeds = (jobs: Job[]): CarrierRequirement[] =>
 
     const date = format(startOfDay(new Date(startDateTime)), 'yyyy-MM-dd');
     const quantity = job.quantity || 0;
+    
+    // Skip if quantity is 0 or if product doesn't exist or if no compatible carrier
+    if (quantity === 0 || !job.product || !job.product.compatibleCarrier || !job.product.neededCarrierAmount || job.product.neededCarrierAmount <= 0) {
+      return;
+    }
+
     const carrierType = job.product.compatibleCarrier;
     
     let carriersNeeded = 0;
     
-    if (job.product.compatiblePackaging && job.product.neededPackagingAmount) {
+    if (job.product.compatiblePackaging && job.product.neededPackagingAmount && job.product.neededPackagingAmount > 0) {
       // Product has packaging: calculate carriers based on packaging count
       const packagingNeeded = Math.ceil(quantity / job.product.neededPackagingAmount);
       carriersNeeded = Math.ceil(packagingNeeded / job.product.neededCarrierAmount);
@@ -84,11 +93,13 @@ export const calculateDailyCarrierNeeds = (jobs: Job[]): CarrierRequirement[] =>
       carriersNeeded = Math.ceil(quantity / job.product.neededCarrierAmount);
     }
     
-    if (!carrierNeeds[date]) {
-      carrierNeeds[date] = {};
+    if (carriersNeeded > 0) {
+      if (!carrierNeeds[date]) {
+        carrierNeeds[date] = {};
+      }
+      
+      carrierNeeds[date][carrierType] = (carrierNeeds[date][carrierType] || 0) + carriersNeeded;
     }
-    
-    carrierNeeds[date][carrierType] = (carrierNeeds[date][carrierType] || 0) + carriersNeeded;
   });
 
   const result: CarrierRequirement[] = [];
