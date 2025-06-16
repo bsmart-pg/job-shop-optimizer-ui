@@ -15,7 +15,11 @@ export const getMockSchedule = (): Schedule => ({
       product: {
         id: "prod1",
         name: "Product 1",
-        compatibleMachines: ["Type A"]
+        compatibleMachines: ["Type A"],
+        compatiblePackaging: "Box",
+        compatibleCarrier: "Pallet",
+        neededPackagingAmount: 24,
+        neededCarrierAmount: 40
       },
       duration: 7200, // 2 hours
       readyDateTime: new Date().toISOString(),
