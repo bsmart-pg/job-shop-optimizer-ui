@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Line } from "@/lib/types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/sonner";
 import { fetchWithTimeout } from "@/lib/utils/fetchUtils";
 import { Spinner } from "@/components/Spinner";
@@ -23,14 +23,47 @@ interface LineConfig {
 
 export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigurationProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [configurations, setConfigurations] = useState<LineConfig[]>(
-    lines.map(line => ({
-      lineId: line.id,
-      activateNightshift: false,
-      lineAvailable: true
-    }))
-  );
+  const [configurations, setConfigurations] = useState<LineConfig[]>([]);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Load current line configuration when component mounts or lines change
+  useEffect(() => {
+    const loadLineConfiguration = async () => {
+      if (lines.length === 0) return;
+      
+      setLoading(true);
+      try {
+        const response = await fetchWithTimeout('/api/schedule/getLineConfig');
+        const data = await response.json();
+        
+        // Map the response to our configuration format
+        const loadedConfigs = lines.map(line => {
+          const savedConfig = data.find((config: any) => config.id === line.id);
+          return {
+            lineId: line.id,
+            activateNightshift: savedConfig?.activateNightshift || false,
+            lineAvailable: savedConfig?.lineAvailable !== undefined ? savedConfig.lineAvailable : true
+          };
+        });
+        
+        setConfigurations(loadedConfigs);
+      } catch (error) {
+        console.error("Error loading line configuration:", error);
+        // Fallback to default values if loading fails
+        const defaultConfigs = lines.map(line => ({
+          lineId: line.id,
+          activateNightshift: false,
+          lineAvailable: line.lineAvailable !== undefined ? line.lineAvailable : true
+        }));
+        setConfigurations(defaultConfigs);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadLineConfiguration();
+  }, [lines]);
 
   const updateConfiguration = (lineId: string, field: keyof Omit<LineConfig, 'lineId'>, value: boolean) => {
     setConfigurations(prev => 
@@ -68,6 +101,22 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
       setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Linien-Konfiguration</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <Spinner size="sm" className="mr-2" />
+            <span>Lade Konfiguration...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-6">
