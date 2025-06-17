@@ -29,12 +29,16 @@ export const getMockSchedule = (): Schedule => ({
       startCleaningDateTime: null,
       startProductionDateTime: null,
       endDateTime: null,
-      customerName: "Sample Customer"
+      customerName: "Sample Customer",
+      compatiblePackaging: "Box",
+      compatibleCarrier: "Pallet",
+      neededPackagingAmount: 24,
+      neededCarrierAmount: 40
     }
   ],
   excludedJobs: [],
   stockDoneJobs: [],
-  partiallyStockDoneJobs: [], // This line properly adds the required property to match the Schedule type
+  partiallyStockDoneJobs: [],
   workCalendar: {
     fromDate: new Date().toISOString().split('T')[0],
     toDate: new Date(Date.now() + 86400000).toISOString().split('T')[0] // tomorrow
