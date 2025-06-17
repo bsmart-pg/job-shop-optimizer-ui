@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +32,9 @@ export function PackagingView({ requirements }: PackagingViewProps) {
     <Card>
       <CardHeader>
         <CardTitle>Packmittelbedarf</CardTitle>
+        <p className="text-sm text-muted-foreground mt-2">
+          Der Packmittelbedarf gibt an, wie viele Packmittel im angegebenen Zeitraum bereitgehalten werden müssen. Dabei wird angenommen, dass Packmittel zum Start eines Jobs bereit stehen müssen und es werden für
+        </p>
       </CardHeader>
       <CardContent>
         {requirements.length === 0 ? (
