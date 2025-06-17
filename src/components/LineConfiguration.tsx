@@ -109,9 +109,9 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
       
       toast.success("Linien-Konfiguration erfolgreich gespeichert");
       
-      // Don't call onConfigurationSaved() as it might trigger a reload that resets the state
-      // Instead, just keep the current state as is
-      console.log("Configuration saved successfully, keeping current state");
+      // Call onConfigurationSaved() to reload all components with the new schedule
+      onConfigurationSaved();
+      console.log("Configuration saved successfully, reloading schedule");
     } catch (error) {
       console.error("Error saving line configuration:", error);
       toast.error("Fehler beim Speichern der Linien-Konfiguration");
