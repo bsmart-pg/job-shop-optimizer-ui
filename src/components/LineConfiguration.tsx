@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -37,16 +36,24 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
         const response = await fetchWithTimeout('/api/schedule/getLineConfig');
         const data = await response.json();
         
+        console.log("Loaded line config data:", data);
+        
         // Map the response to our configuration format
         const loadedConfigs = lines.map(line => {
           const savedConfig = data.find((config: any) => config.id === line.id);
-          return {
+          console.log(`Line ${line.id} savedConfig:`, savedConfig);
+          
+          const config = {
             lineId: line.id,
             activateNightshift: savedConfig?.activateNightshift === true,
             lineAvailable: savedConfig?.lineAvailable !== undefined ? savedConfig.lineAvailable : true
           };
+          
+          console.log(`Line ${line.id} final config:`, config);
+          return config;
         });
         
+        console.log("All loaded configs:", loadedConfigs);
         setConfigurations(loadedConfigs);
       } catch (error) {
         console.error("Error loading line configuration:", error);
@@ -66,16 +73,20 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
   }, [lines]);
 
   const updateConfiguration = (lineId: string, field: keyof Omit<LineConfig, 'lineId'>, value: boolean) => {
-    setConfigurations(prev => 
-      prev.map(config => 
+    console.log(`Updating ${field} for line ${lineId} to:`, value);
+    setConfigurations(prev => {
+      const updated = prev.map(config => 
         config.lineId === lineId 
           ? { ...config, [field]: value }
           : config
-      )
-    );
+      );
+      console.log("Updated configurations:", updated);
+      return updated;
+    });
   };
 
   const handleSaveConfiguration = async () => {
+    console.log("Saving configurations:", configurations);
     setSaving(true);
     try {
       const requestBody = configurations.map(config => ({
@@ -84,7 +95,9 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
         lineAvailable: config.lineAvailable
       }));
 
-      await fetchWithTimeout('/api/schedule/setLineConfig', {
+      console.log("Request body:", requestBody);
+
+      const response = await fetchWithTimeout('/api/schedule/setLineConfig', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -92,8 +105,13 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
         body: JSON.stringify(requestBody)
       });
       
+      console.log("Save response:", response);
+      
       toast.success("Linien-Konfiguration erfolgreich gespeichert");
-      onConfigurationSaved();
+      
+      // Don't call onConfigurationSaved() as it might trigger a reload that resets the state
+      // Instead, just keep the current state as is
+      console.log("Configuration saved successfully, keeping current state");
     } catch (error) {
       console.error("Error saving line configuration:", error);
       toast.error("Fehler beim Speichern der Linien-Konfiguration");
@@ -141,6 +159,8 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
                   const config = configurations.find(c => c.lineId === line.id);
                   if (!config) return null;
 
+                  console.log(`Rendering line ${line.id} with config:`, config);
+
                   return (
                     <div key={line.id} className="border rounded-lg p-4 space-y-3">
                       <h4 className="font-semibold text-sm">{line.name}</h4>
@@ -151,9 +171,10 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
                           <Checkbox 
                             id={`nightshift-${line.id}`}
                             checked={config.activateNightshift}
-                            onCheckedChange={(checked) => 
-                              updateConfiguration(line.id, 'activateNightshift', checked === true)
-                            }
+                            onCheckedChange={(checked) => {
+                              console.log(`Nightshift checkbox changed for ${line.id}:`, checked);
+                              updateConfiguration(line.id, 'activateNightshift', checked === true);
+                            }}
                           />
                           <label
                             htmlFor={`nightshift-${line.id}`}
