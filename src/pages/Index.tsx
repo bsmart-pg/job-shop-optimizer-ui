@@ -16,6 +16,7 @@ import { OnTimeRate } from "@/components/OnTimeRate";
 import { DelayedJobs } from "@/components/DelayedJobs";
 import { StockDoneJobs } from "@/components/StockDoneJobs";
 import { PartiallyStockDoneJobs } from "@/components/PartiallyStockDoneJobs";
+import { UnfulfillableJobs } from "@/components/UnfulfillableJobs";
 import { LeergutView } from "@/components/LeergutView";
 import { LineConfiguration } from "@/components/LineConfiguration";
 
@@ -136,6 +137,7 @@ const Index = () => {
               <DelayedJobs jobs={schedule.jobs} />
               <StockDoneJobs jobs={schedule.stockDoneJobs || []} />
               <PartiallyStockDoneJobs jobs={schedule.partiallyStockDoneJobs || []} />
+              <UnfulfillableJobs jobs={schedule.unfulfillableJobs || []} />
               <UnassignedJobs jobs={schedule.jobs} />
               <ExcludedJobs 
                 jobs={schedule.excludedJobs} 

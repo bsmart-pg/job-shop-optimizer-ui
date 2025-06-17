@@ -39,6 +39,7 @@ export const getMockSchedule = (): Schedule => ({
   excludedJobs: [],
   stockDoneJobs: [],
   partiallyStockDoneJobs: [],
+  unfulfillableJobs: [],
   workCalendar: {
     fromDate: new Date().toISOString().split('T')[0],
     toDate: new Date(Date.now() + 86400000).toISOString().split('T')[0] // tomorrow

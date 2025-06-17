@@ -1,3 +1,4 @@
+
 export interface Line {
   id: string;
   name: string;
@@ -51,6 +52,7 @@ export interface Schedule {
   excludedJobs: Job[];
   stockDoneJobs: Job[];
   partiallyStockDoneJobs: Job[];
+  unfulfillableJobs: Job[];
   workCalendar: WorkCalendar;
 }
 
