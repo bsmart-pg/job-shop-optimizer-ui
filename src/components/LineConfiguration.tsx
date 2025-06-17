@@ -50,7 +50,7 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(configurations)
+        body: JSON.stringify(requestBody)
       });
       
       toast.success("Linien-Konfiguration erfolgreich gespeichert");
