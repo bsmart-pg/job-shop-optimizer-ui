@@ -1,0 +1,137 @@
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Line } from "@/lib/types";
+import { useState } from "react";
+import { toast } from "@/components/ui/sonner";
+import { fetchWithTimeout } from "@/lib/utils/fetchUtils";
+import { Spinner } from "@/components/Spinner";
+
+interface LineConfigurationProps {
+  lines: Line[];
+  onConfigurationSaved: () => void;
+}
+
+interface LineConfig {
+  lineId: string;
+  nightShiftEnabled: boolean;
+  lineAvailable: boolean;
+}
+
+export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigurationProps) {
+  const [configurations, setConfigurations] = useState<LineConfig[]>(
+    lines.map(line => ({
+      lineId: line.id,
+      nightShiftEnabled: false,
+      lineAvailable: true
+    }))
+  );
+  const [saving, setSaving] = useState(false);
+
+  const updateConfiguration = (lineId: string, field: keyof Omit<LineConfig, 'lineId'>, value: boolean) => {
+    setConfigurations(prev => 
+      prev.map(config => 
+        config.lineId === lineId 
+          ? { ...config, [field]: value }
+          : config
+      )
+    );
+  };
+
+  const handleSaveConfiguration = async () => {
+    setSaving(true);
+    try {
+      await fetchWithTimeout('/api/schedule/setLineConfiguration', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(configurations)
+      });
+      
+      toast.success("Linien-Konfiguration erfolgreich gespeichert");
+      onConfigurationSaved();
+    } catch (error) {
+      console.error("Error saving line configuration:", error);
+      toast.error("Fehler beim Speichern der Linien-Konfiguration");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle>Linien-Konfiguration</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {lines.map(line => {
+              const config = configurations.find(c => c.lineId === line.id);
+              if (!config) return null;
+
+              return (
+                <div key={line.id} className="border rounded-lg p-4 space-y-3">
+                  <h4 className="font-semibold text-sm">{line.name}</h4>
+                  <p className="text-xs text-muted-foreground">{line.machineTypeDisplayName}</p>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`nightshift-${line.id}`}
+                        checked={config.nightShiftEnabled}
+                        onCheckedChange={(checked) => 
+                          updateConfiguration(line.id, 'nightShiftEnabled', checked === true)
+                        }
+                      />
+                      <label
+                        htmlFor={`nightshift-${line.id}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Nachtschicht aktivieren
+                      </label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`available-${line.id}`}
+                        checked={config.lineAvailable}
+                        onCheckedChange={(checked) => 
+                          updateConfiguration(line.id, 'lineAvailable', checked === true)
+                        }
+                      />
+                      <label
+                        htmlFor={`available-${line.id}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Linie verfügbar
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="flex justify-end pt-4 border-t">
+            <Button 
+              onClick={handleSaveConfiguration}
+              disabled={saving}
+            >
+              {saving ? (
+                <span className="flex items-center">
+                  <Spinner size="sm" className="mr-2" />
+                  Speichern...
+                </span>
+              ) : (
+                "Konfiguration speichern"
+              )}
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

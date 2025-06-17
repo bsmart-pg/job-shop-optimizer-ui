@@ -17,6 +17,7 @@ import { DelayedJobs } from "@/components/DelayedJobs";
 import { StockDoneJobs } from "@/components/StockDoneJobs";
 import { PartiallyStockDoneJobs } from "@/components/PartiallyStockDoneJobs";
 import { LeergutView } from "@/components/LeergutView";
+import { LineConfiguration } from "@/components/LineConfiguration";
 
 const Index = () => {
   const {
@@ -66,6 +67,14 @@ const Index = () => {
         </div>
       ) : schedule ? (
         <>
+          {/* Line Configuration - only show when not solving */}
+          {!solving && schedule.lines && schedule.lines.length > 0 && (
+            <LineConfiguration 
+              lines={schedule.lines} 
+              onConfigurationSaved={refreshSchedule}
+            />
+          )}
+
           <div className="mt-6">
             <ScheduleControls 
               score={schedule.score}
