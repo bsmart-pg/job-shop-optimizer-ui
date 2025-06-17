@@ -23,28 +23,30 @@ export const calculateDailyPackagingNeeds = (jobs: Job[]): PackagingRequirement[
   const packagingNeeds: Record<string, Record<string, number>> = {};
 
   jobs.forEach(job => {
-    // Skip jobs without assigned lines or start times
-    if (!job.line || (!job.startProductionDateTime && !job.startCleaningDateTime)) {
+    // Skip jobs without start production datetime
+    if (!job.startProductionDateTime) {
       return;
     }
 
-    const startDateTime = job.startProductionDateTime || job.startCleaningDateTime;
-    if (!startDateTime) return;
-
-    const date = format(startOfDay(new Date(startDateTime)), 'yyyy-MM-dd');
-    const quantity = job.quantity || 0;
-    
-    // Only calculate packaging if the product has compatible packaging
-    if (job.product.compatiblePackaging && job.product.neededPackagingAmount) {
-      const packagingType = job.product.compatiblePackaging;
-      const packagingNeeded = Math.ceil(quantity / job.product.neededPackagingAmount);
-      
-      if (!packagingNeeds[date]) {
-        packagingNeeds[date] = {};
-      }
-      
-      packagingNeeds[date][packagingType] = (packagingNeeds[date][packagingType] || 0) + packagingNeeded;
+    // Skip jobs without compatible packaging or if it's empty
+    if (!job.product.compatiblePackaging || job.product.compatiblePackaging.trim() === '') {
+      return;
     }
+
+    // Skip jobs without needed packaging amount
+    if (!job.product.neededPackagingAmount || job.product.neededPackagingAmount <= 0) {
+      return;
+    }
+
+    const date = format(startOfDay(new Date(job.startProductionDateTime)), 'yyyy-MM-dd');
+    const packagingType = job.product.compatiblePackaging;
+    const neededAmount = job.product.neededPackagingAmount;
+    
+    if (!packagingNeeds[date]) {
+      packagingNeeds[date] = {};
+    }
+    
+    packagingNeeds[date][packagingType] = (packagingNeeds[date][packagingType] || 0) + neededAmount;
   });
 
   const result: PackagingRequirement[] = [];
@@ -61,34 +63,30 @@ export const calculateDailyCarrierNeeds = (jobs: Job[]): CarrierRequirement[] =>
   const carrierNeeds: Record<string, Record<string, number>> = {};
 
   jobs.forEach(job => {
-    // Skip jobs without assigned lines or start times
-    if (!job.line || (!job.startProductionDateTime && !job.startCleaningDateTime)) {
+    // Skip jobs without start production datetime
+    if (!job.startProductionDateTime) {
       return;
     }
 
-    const startDateTime = job.startProductionDateTime || job.startCleaningDateTime;
-    if (!startDateTime) return;
-
-    const date = format(startOfDay(new Date(startDateTime)), 'yyyy-MM-dd');
-    const quantity = job.quantity || 0;
-    const carrierType = job.product.compatibleCarrier;
-    
-    let carriersNeeded = 0;
-    
-    if (job.product.compatiblePackaging && job.product.neededPackagingAmount) {
-      // Product has packaging: calculate carriers based on packaging count
-      const packagingNeeded = Math.ceil(quantity / job.product.neededPackagingAmount);
-      carriersNeeded = Math.ceil(packagingNeeded / job.product.neededCarrierAmount);
-    } else {
-      // Product has no packaging: calculate carriers directly
-      carriersNeeded = Math.ceil(quantity / job.product.neededCarrierAmount);
+    // Skip jobs without compatible carrier or if it's empty
+    if (!job.product.compatibleCarrier || job.product.compatibleCarrier.trim() === '') {
+      return;
     }
+
+    // Skip jobs without needed carrier amount
+    if (!job.product.neededCarrierAmount || job.product.neededCarrierAmount <= 0) {
+      return;
+    }
+
+    const date = format(startOfDay(new Date(job.startProductionDateTime)), 'yyyy-MM-dd');
+    const carrierType = job.product.compatibleCarrier;
+    const neededAmount = job.product.neededCarrierAmount;
     
     if (!carrierNeeds[date]) {
       carrierNeeds[date] = {};
     }
     
-    carrierNeeds[date][carrierType] = (carrierNeeds[date][carrierType] || 0) + carriersNeeded;
+    carrierNeeds[date][carrierType] = (carrierNeeds[date][carrierType] || 0) + neededAmount;
   });
 
   const result: CarrierRequirement[] = [];
