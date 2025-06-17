@@ -52,7 +52,6 @@ export function PackagingView({
         <CardHeader>
           <CardTitle>Packmittelbedarf</CardTitle>
           <p className="text-sm text-muted-foreground mt-2">
-            Der Packmittelbedarf gibt an, wie viele Packmittel im angegebenen Zeitraum bereitgehalten werden müssen. Dabei wird angenommen, dass Packmittel zum Start eines Jobs bereit stehen müssen und es werden für
           </p>
         </CardHeader>
         <CardContent>

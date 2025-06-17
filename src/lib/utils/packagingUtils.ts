@@ -29,18 +29,18 @@ export const calculateDailyPackagingNeeds = (jobs: Job[]): PackagingRequirement[
     }
 
     // Skip jobs without compatible packaging or if it's empty
-    if (!job.product.compatiblePackaging || job.product.compatiblePackaging.trim() === '') {
+    if (!job.compatiblePackaging || job.compatiblePackaging.trim() === '') {
       return;
     }
 
     // Skip jobs without needed packaging amount
-    if (!job.product.neededPackagingAmount || job.product.neededPackagingAmount <= 0) {
+    if (!job.neededPackagingAmount || job.neededPackagingAmount <= 0) {
       return;
     }
 
     const date = format(startOfDay(new Date(job.startProductionDateTime)), 'yyyy-MM-dd');
-    const packagingType = job.product.compatiblePackaging;
-    const neededAmount = job.product.neededPackagingAmount;
+    const packagingType = job.compatiblePackaging;
+    const neededAmount = job.neededPackagingAmount;
     
     if (!packagingNeeds[date]) {
       packagingNeeds[date] = {};
@@ -69,18 +69,18 @@ export const calculateDailyCarrierNeeds = (jobs: Job[]): CarrierRequirement[] =>
     }
 
     // Skip jobs without compatible carrier or if it's empty
-    if (!job.product.compatibleCarrier || job.product.compatibleCarrier.trim() === '') {
+    if (!job.compatibleCarrier || job.compatibleCarrier.trim() === '') {
       return;
     }
 
     // Skip jobs without needed carrier amount
-    if (!job.product.neededCarrierAmount || job.product.neededCarrierAmount <= 0) {
+    if (!job.neededCarrierAmount || job.neededCarrierAmount <= 0) {
       return;
     }
 
     const date = format(startOfDay(new Date(job.startProductionDateTime)), 'yyyy-MM-dd');
-    const carrierType = job.product.compatibleCarrier;
-    const neededAmount = job.product.neededCarrierAmount;
+    const carrierType = job.compatibleCarrier;
+    const neededAmount = job.neededCarrierAmount;
     
     if (!carrierNeeds[date]) {
       carrierNeeds[date] = {};

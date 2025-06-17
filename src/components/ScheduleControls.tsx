@@ -146,7 +146,7 @@ export function ScheduleControls({
         <Tabs value={selectedView} onValueChange={onViewChange} className="w-full sm:w-auto">
           <TabsList>
             <TabsTrigger value="byLine">Produktionslinienansicht</TabsTrigger>
-            <TabsTrigger value="byJob">Jobansicht</TabsTrigger>
+            {/* <TabsTrigger value="byJob">Jobansicht</TabsTrigger> */}
             <TabsTrigger value="leergut">Leergut-Ansicht</TabsTrigger>
           </TabsList>
         </Tabs>

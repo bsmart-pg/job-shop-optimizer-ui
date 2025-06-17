@@ -31,6 +31,10 @@ export interface Job {
   quantity?: number;
   orderNumber?: string;
   recipient?: string; // Added the recipient property
+  compatiblePackaging: string | null;
+  compatibleCarrier: string;
+  neededPackagingAmount: number | null;
+  neededCarrierAmount: number;
 }
 
 export interface WorkCalendar {

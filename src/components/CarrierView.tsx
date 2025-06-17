@@ -50,7 +50,7 @@ export function CarrierView({
       
       <Card>
         <CardHeader>
-          <CardTitle>Versandeinheiten-Bedarf</CardTitle>
+          <CardTitle>Versandeinheitenbedarf</CardTitle>
         </CardHeader>
         <CardContent>
           {requirements.length === 0 ? (
