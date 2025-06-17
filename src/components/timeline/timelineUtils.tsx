@@ -1,4 +1,3 @@
-
 import { Job, Line } from '@/lib/types';
 import { DataSet } from 'vis-data';
 import { TimelineItem } from './TimelineItem';
@@ -8,14 +7,12 @@ export function createTimelineGroups(groups: DataSet<any>, lines: Line[], jobs: 
   if (view === 'byLine') {
     // Line view groups
     lines.forEach(line => {
-      const unavailableClass = line.lineAvailable === false ? ' timeline-group-unavailable' : '';
       groups.add({
         id: line.id,
-        content: `<div class="timeline-group-content${unavailableClass}">
+        content: `<div>
           <h5 class="font-medium">${line.name}</h5>
           <p class="text-xs text-muted-foreground">${line.machineTypeDisplayName}</p>
-        </div>`,
-        className: line.lineAvailable === false ? 'timeline-group-unavailable' : ''
+        </div>`
       });
     });
   } else {

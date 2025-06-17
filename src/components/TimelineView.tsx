@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataSet } from 'vis-data';
@@ -95,23 +96,6 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
           }
         });
       }
-
-      // Add CSS styles for unavailable lines
-      const style = document.createElement('style');
-      style.textContent = `
-        .vis-labelset .vis-label.timeline-group-unavailable {
-          opacity: 0.4;
-          background-color: #f5f5f5 !important;
-        }
-        .vis-labelset .vis-label.timeline-group-unavailable .timeline-group-content {
-          opacity: 0.5;
-        }
-        .vis-panel.vis-left .vis-label.timeline-group-unavailable {
-          background-color: #f8f8f8 !important;
-          color: #999 !important;
-        }
-      `;
-      document.head.appendChild(style);
 
       // Listen for window resize
       const handleResize = () => {
