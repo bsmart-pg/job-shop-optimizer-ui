@@ -17,7 +17,7 @@ interface LineConfigurationProps {
 
 interface LineConfig {
   lineId: string;
-  nightShiftEnabled: boolean;
+  activateNightshift: boolean;
   lineAvailable: boolean;
 }
 
@@ -26,7 +26,7 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
   const [configurations, setConfigurations] = useState<LineConfig[]>(
     lines.map(line => ({
       lineId: line.id,
-      nightShiftEnabled: false,
+      activateNightshift: false,
       lineAvailable: true
     }))
   );
@@ -45,12 +45,19 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
   const handleSaveConfiguration = async () => {
     setSaving(true);
     try {
-      await fetchWithTimeout('/api/schedule/setLineConfiguration', {
+      // Transform data to match the required API format
+      const requestBody = configurations.map(config => ({
+        id: config.lineId,
+        activateNightshift: config.activateNightshift,
+        lineAvailable: config.lineAvailable
+      }));
+
+      await fetchWithTimeout('/setLineConfig', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(configurations)
+        body: JSON.stringify(requestBody)
       });
       
       toast.success("Linien-Konfiguration erfolgreich gespeichert");
@@ -95,9 +102,9 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
                         <div className="flex items-center space-x-2">
                           <Checkbox 
                             id={`nightshift-${line.id}`}
-                            checked={config.nightShiftEnabled}
+                            checked={config.activateNightshift}
                             onCheckedChange={(checked) => 
-                              updateConfiguration(line.id, 'nightShiftEnabled', checked === true)
+                              updateConfiguration(line.id, 'activateNightshift', checked === true)
                             }
                           />
                           <label
