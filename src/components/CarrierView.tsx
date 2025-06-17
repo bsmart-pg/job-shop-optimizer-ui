@@ -31,12 +31,12 @@ export function CarrierView({ requirements }: CarrierViewProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Ladungsträger-Bedarf</CardTitle>
+        <CardTitle>Versandeinheiten-Bedarf</CardTitle>
       </CardHeader>
       <CardContent>
         {requirements.length === 0 ? (
           <p className="text-center text-muted-foreground py-4">
-            Keine Ladungsträger-Anforderungen gefunden.
+            Keine Versandeinheiten-Anforderungen gefunden.
           </p>
         ) : (
           <div className="space-y-6">
@@ -59,7 +59,7 @@ export function CarrierView({ requirements }: CarrierViewProps) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Ladungsträger-Typ</TableHead>
+                          <TableHead>Versandeinheiten-Typ</TableHead>
                           <TableHead className="text-right">Menge</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -85,7 +85,7 @@ export function CarrierView({ requirements }: CarrierViewProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Ladungsträger-Typ</TableHead>
+                    <TableHead>Versandeinheiten-Typ</TableHead>
                     <TableHead className="text-right">Gesamtmenge</TableHead>
                   </TableRow>
                 </TableHeader>

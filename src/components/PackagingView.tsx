@@ -31,12 +31,12 @@ export function PackagingView({ requirements }: PackagingViewProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Verpackungsbedarf</CardTitle>
+        <CardTitle>Packmittelbedarf</CardTitle>
       </CardHeader>
       <CardContent>
         {requirements.length === 0 ? (
           <p className="text-center text-muted-foreground py-4">
-            Keine Verpackungsanforderungen gefunden.
+            Keine Packmittelanforderungen gefunden.
           </p>
         ) : (
           <div className="space-y-6">
@@ -59,7 +59,7 @@ export function PackagingView({ requirements }: PackagingViewProps) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Verpackungstyp</TableHead>
+                          <TableHead>Packmitteltyp</TableHead>
                           <TableHead className="text-right">Menge</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -85,7 +85,7 @@ export function PackagingView({ requirements }: PackagingViewProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Verpackungstyp</TableHead>
+                    <TableHead>Packmitteltyp</TableHead>
                     <TableHead className="text-right">Gesamtmenge</TableHead>
                   </TableRow>
                 </TableHeader>

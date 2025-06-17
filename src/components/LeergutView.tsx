@@ -59,8 +59,8 @@ export function LeergutView({ jobs }: LeergutViewProps) {
       
       <Tabs defaultValue="packaging" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="packaging">Verpackungen</TabsTrigger>
-          <TabsTrigger value="carrier">Ladungsträger</TabsTrigger>
+          <TabsTrigger value="packaging">Packmittel</TabsTrigger>
+          <TabsTrigger value="carrier">Versandeinheiten</TabsTrigger>
         </TabsList>
         <TabsContent value="packaging">
           <PackagingView requirements={packagingRequirements} />
