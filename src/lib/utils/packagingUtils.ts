@@ -23,30 +23,28 @@ export const calculateDailyPackagingNeeds = (jobs: Job[]): PackagingRequirement[
   const packagingNeeds: Record<string, Record<string, number>> = {};
 
   jobs.forEach(job => {
-    // Only process jobs that are actually scheduled (have line AND start production time)
-    if (!job.line || !job.startProductionDateTime) {
+    // Skip jobs without assigned lines or start times
+    if (!job.line || (!job.startProductionDateTime && !job.startCleaningDateTime)) {
       return;
     }
 
-    const quantity = job.quantity;
-    if (!quantity || quantity <= 0) {
-      return;
-    }
+    const startDateTime = job.startProductionDateTime || job.startCleaningDateTime;
+    if (!startDateTime) return;
 
-    // Only calculate packaging if the product has compatible packaging and needed amount
-    if (!job.product.compatiblePackaging || !job.product.neededPackagingAmount) {
-      return;
-    }
-
-    const date = format(startOfDay(new Date(job.startProductionDateTime)), 'yyyy-MM-dd');
-    const packagingType = job.product.compatiblePackaging;
-    const packagingNeeded = Math.ceil(quantity / job.product.neededPackagingAmount);
+    const date = format(startOfDay(new Date(startDateTime)), 'yyyy-MM-dd');
+    const quantity = job.quantity || 0;
     
-    if (!packagingNeeds[date]) {
-      packagingNeeds[date] = {};
+    // Only calculate packaging if the product has compatible packaging
+    if (job.product.compatiblePackaging && job.product.neededPackagingAmount) {
+      const packagingType = job.product.compatiblePackaging;
+      const packagingNeeded = Math.ceil(quantity / job.product.neededPackagingAmount);
+      
+      if (!packagingNeeds[date]) {
+        packagingNeeds[date] = {};
+      }
+      
+      packagingNeeds[date][packagingType] = (packagingNeeds[date][packagingType] || 0) + packagingNeeded;
     }
-    
-    packagingNeeds[date][packagingType] = (packagingNeeds[date][packagingType] || 0) + packagingNeeded;
   });
 
   const result: PackagingRequirement[] = [];
@@ -63,22 +61,17 @@ export const calculateDailyCarrierNeeds = (jobs: Job[]): CarrierRequirement[] =>
   const carrierNeeds: Record<string, Record<string, number>> = {};
 
   jobs.forEach(job => {
-    // Only process jobs that are actually scheduled (have line AND start production time)
-    if (!job.line || !job.startProductionDateTime) {
+    // Skip jobs without assigned lines or start times
+    if (!job.line || (!job.startProductionDateTime && !job.startCleaningDateTime)) {
       return;
     }
 
-    const quantity = job.quantity;
-    if (!quantity || quantity <= 0) {
-      return;
-    }
+    const startDateTime = job.startProductionDateTime || job.startCleaningDateTime;
+    if (!startDateTime) return;
 
-    const date = format(startOfDay(new Date(job.startProductionDateTime)), 'yyyy-MM-dd');
+    const date = format(startOfDay(new Date(startDateTime)), 'yyyy-MM-dd');
+    const quantity = job.quantity || 0;
     const carrierType = job.product.compatibleCarrier;
-    
-    if (!carrierType) {
-      return;
-    }
     
     let carriersNeeded = 0;
     
