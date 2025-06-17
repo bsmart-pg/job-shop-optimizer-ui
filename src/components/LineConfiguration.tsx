@@ -42,7 +42,7 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
           const savedConfig = data.find((config: any) => config.id === line.id);
           return {
             lineId: line.id,
-            activateNightshift: savedConfig?.activateNightshift || false,
+            activateNightshift: savedConfig?.activateNightshift === true,
             lineAvailable: savedConfig?.lineAvailable !== undefined ? savedConfig.lineAvailable : true
           };
         });
