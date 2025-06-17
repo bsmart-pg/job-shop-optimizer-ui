@@ -4,7 +4,6 @@ import { PackagingView } from './PackagingView';
 import { CarrierView } from './CarrierView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { calculateDailyPackagingNeeds, calculateDailyCarrierNeeds } from '@/lib/utils/packagingUtils';
-import { DateFilterControls } from './DateFilterControls';
 import { isWithinInterval, parseISO, isSameDay, startOfDay, endOfDay } from 'date-fns';
 
 interface LeergutViewProps {
@@ -49,26 +48,29 @@ export function LeergutView({ jobs }: LeergutViewProps) {
   }, [filteredJobs]);
 
   return (
-    <div className="space-y-6">
-      <DateFilterControls
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
-      />
-      
-      <Tabs defaultValue="packaging" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="packaging">Packmittel</TabsTrigger>
-          <TabsTrigger value="carrier">Versandeinheiten</TabsTrigger>
-        </TabsList>
-        <TabsContent value="packaging">
-          <PackagingView requirements={packagingRequirements} />
-        </TabsContent>
-        <TabsContent value="carrier">
-          <CarrierView requirements={carrierRequirements} />
-        </TabsContent>
-      </Tabs>
-    </div>
+    <Tabs defaultValue="packaging" className="w-full">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="packaging">Packmittel</TabsTrigger>
+        <TabsTrigger value="carrier">Versandeinheiten</TabsTrigger>
+      </TabsList>
+      <TabsContent value="packaging">
+        <PackagingView 
+          requirements={packagingRequirements}
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+        />
+      </TabsContent>
+      <TabsContent value="carrier">
+        <CarrierView 
+          requirements={carrierRequirements}
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+        />
+      </TabsContent>
+    </Tabs>
   );
 }

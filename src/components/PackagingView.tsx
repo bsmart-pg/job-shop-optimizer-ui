@@ -5,12 +5,23 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { PackagingRequirement } from "@/lib/utils/packagingUtils";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
+import { DateFilterControls } from "./DateFilterControls";
 
 interface PackagingViewProps {
   requirements: PackagingRequirement[];
+  startDate: Date | undefined;
+  endDate: Date | undefined;
+  onStartDateChange: (date: Date | undefined) => void;
+  onEndDateChange: (date: Date | undefined) => void;
 }
 
-export function PackagingView({ requirements }: PackagingViewProps) {
+export function PackagingView({ 
+  requirements, 
+  startDate, 
+  endDate, 
+  onStartDateChange, 
+  onEndDateChange 
+}: PackagingViewProps) {
   // Group requirements by date
   const groupedByDate = requirements.reduce((acc, req) => {
     if (!acc[req.date]) {
@@ -29,96 +40,105 @@ export function PackagingView({ requirements }: PackagingViewProps) {
   const grandTotal = Object.values(totalsByType).reduce((sum, qty) => sum + qty, 0);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Packmittelbedarf</CardTitle>
-        <p className="text-sm text-muted-foreground mt-2">
-          Der Packmittelbedarf gibt an, wie viele Packmittel im angegebenen Zeitraum bereitgehalten werden müssen. Dabei wird angenommen, dass Packmittel zum Start eines Jobs bereit stehen müssen und es werden für
-        </p>
-      </CardHeader>
-      <CardContent>
-        {requirements.length === 0 ? (
-          <p className="text-center text-muted-foreground py-4">
-            Keine Packmittelanforderungen gefunden.
+    <div className="space-y-6">
+      <DateFilterControls
+        startDate={startDate}
+        endDate={endDate}
+        onStartDateChange={onStartDateChange}
+        onEndDateChange={onEndDateChange}
+      />
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Packmittelbedarf</CardTitle>
+          <p className="text-sm text-muted-foreground mt-2">
+            Der Packmittelbedarf gibt an, wie viele Packmittel im angegebenen Zeitraum bereitgehalten werden müssen. Dabei wird angenommen, dass Packmittel zum Start eines Jobs bereit stehen müssen und es werden für
           </p>
-        ) : (
-          <div className="space-y-6">
-            {/* Summary moved to top */}
-            <div>
-              <h3 className="font-semibold mb-3">Zusammenfassung</h3>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Packmitteltyp</TableHead>
-                    <TableHead className="text-right">Gesamtmenge</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {Object.entries(totalsByType).map(([type, quantity]) => (
-                    <TableRow key={type}>
-                      <TableCell className="font-medium">{type}</TableCell>
+        </CardHeader>
+        <CardContent>
+          {requirements.length === 0 ? (
+            <p className="text-center text-muted-foreground py-4">
+              Keine Packmittelanforderungen gefunden.
+            </p>
+          ) : (
+            <div className="space-y-6">
+              {/* Summary moved to top */}
+              <div>
+                <h3 className="font-semibold mb-3">Zusammenfassung</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Packmitteltyp</TableHead>
+                      <TableHead className="text-right">Gesamtmenge</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {Object.entries(totalsByType).map(([type, quantity]) => (
+                      <TableRow key={type}>
+                        <TableCell className="font-medium">{type}</TableCell>
+                        <TableCell className="text-right">
+                          <Badge>{quantity}</Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="border-t-2">
+                      <TableCell className="font-bold">Gesamtsumme</TableCell>
                       <TableCell className="text-right">
-                        <Badge>{quantity}</Badge>
+                        <Badge variant="default">{grandTotal}</Badge>
                       </TableCell>
                     </TableRow>
-                  ))}
-                  <TableRow className="border-t-2">
-                    <TableCell className="font-bold">Gesamtsumme</TableCell>
-                    <TableCell className="text-right">
-                      <Badge variant="default">{grandTotal}</Badge>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
+                  </TableBody>
+                </Table>
+              </div>
 
-            {/* Daily breakdown - now collapsible */}
-            <div className="border-t pt-4">
-              <h3 className="font-semibold mb-3">Tägliche Aufschlüsselung</h3>
-              <Accordion type="multiple" className="w-full">
-                {Object.entries(groupedByDate).map(([date, dateRequirements]) => {
-                  const dailyTotal = dateRequirements.reduce((sum, req) => sum + req.quantity, 0);
-                  
-                  return (
-                    <AccordionItem key={date} value={date}>
-                      <AccordionTrigger>
-                        <div className="flex justify-between items-center w-full pr-4">
-                          <span className="font-semibold">
-                            {format(parseISO(date), 'dd.MM.yyyy', { locale: de })}
-                          </span>
-                          <Badge variant="secondary">
-                            Gesamt: {dailyTotal}
-                          </Badge>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Packmitteltyp</TableHead>
-                              <TableHead className="text-right">Menge</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {dateRequirements.map((req, index) => (
-                              <TableRow key={index}>
-                                <TableCell>{req.packagingType}</TableCell>
-                                <TableCell className="text-right">
-                                  <Badge variant="outline">{req.quantity}</Badge>
-                                </TableCell>
+              {/* Daily breakdown - now collapsible */}
+              <div className="border-t pt-4">
+                <h3 className="font-semibold mb-3">Tägliche Aufschlüsselung</h3>
+                <Accordion type="multiple" className="w-full">
+                  {Object.entries(groupedByDate).map(([date, dateRequirements]) => {
+                    const dailyTotal = dateRequirements.reduce((sum, req) => sum + req.quantity, 0);
+                    
+                    return (
+                      <AccordionItem key={date} value={date}>
+                        <AccordionTrigger>
+                          <div className="flex justify-between items-center w-full pr-4">
+                            <span className="font-semibold">
+                              {format(parseISO(date), 'dd.MM.yyyy', { locale: de })}
+                            </span>
+                            <Badge variant="secondary">
+                              Gesamt: {dailyTotal}
+                            </Badge>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Packmitteltyp</TableHead>
+                                <TableHead className="text-right">Menge</TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
+                            </TableHeader>
+                            <TableBody>
+                              {dateRequirements.map((req, index) => (
+                                <TableRow key={index}>
+                                  <TableCell>{req.packagingType}</TableCell>
+                                  <TableCell className="text-right">
+                                    <Badge variant="outline">{req.quantity}</Badge>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
+              </div>
             </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
