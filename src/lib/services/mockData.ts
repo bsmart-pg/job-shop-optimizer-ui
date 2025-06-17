@@ -5,8 +5,8 @@ export const getMockSchedule = (): Schedule => ({
   solverStatus: "NOT_SOLVING",
   score: "0hard/0soft",
   lines: [
-    { id: "line1", name: "Line 1", machineTypeDisplayName: "Type A" },
-    { id: "line2", name: "Line 2", machineTypeDisplayName: "Type B" }
+    { id: "line1", name: "Line 1", machineTypeDisplayName: "Type A", lineAvailable: true },
+    { id: "line2", name: "Line 2", machineTypeDisplayName: "Type B", lineAvailable: true }
   ],
   jobs: [
     {

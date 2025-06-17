@@ -45,6 +45,12 @@ export function LineConfiguration({ lines, onConfigurationSaved }: LineConfigura
   const handleSaveConfiguration = async () => {
     setSaving(true);
     try {
+      const requestBody = configurations.map(config => ({
+        id: config.lineId,
+        activateNightshift: config.activateNightshift,
+        lineAvailable: config.lineAvailable
+      }));
+
       await fetchWithTimeout('/api/schedule/setLineConfig', {
         method: 'POST',
         headers: {
