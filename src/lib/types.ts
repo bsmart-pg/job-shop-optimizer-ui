@@ -2,6 +2,7 @@ export interface Line {
   id: string;
   name: string;
   machineTypeDisplayName: string;
+  lineAvailable: boolean;
 }
 
 export interface Product {
