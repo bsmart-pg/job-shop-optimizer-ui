@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PackagingRequirement } from "@/lib/utils/packagingUtils";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
@@ -40,47 +41,8 @@ export function PackagingView({ requirements }: PackagingViewProps) {
           </p>
         ) : (
           <div className="space-y-6">
-            {/* Daily breakdown */}
-            <div className="space-y-4">
-              {Object.entries(groupedByDate).map(([date, dateRequirements]) => {
-                const dailyTotal = dateRequirements.reduce((sum, req) => sum + req.quantity, 0);
-                
-                return (
-                  <div key={date} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-3">
-                      <h3 className="font-semibold">
-                        {format(parseISO(date), 'dd.MM.yyyy', { locale: de })}
-                      </h3>
-                      <Badge variant="secondary">
-                        Gesamt: {dailyTotal}
-                      </Badge>
-                    </div>
-                    
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Packmitteltyp</TableHead>
-                          <TableHead className="text-right">Menge</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {dateRequirements.map((req, index) => (
-                          <TableRow key={index}>
-                            <TableCell>{req.packagingType}</TableCell>
-                            <TableCell className="text-right">
-                              <Badge variant="outline">{req.quantity}</Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Summary */}
-            <div className="border-t pt-4">
+            {/* Summary moved to top */}
+            <div>
               <h3 className="font-semibold mb-3">Zusammenfassung</h3>
               <Table>
                 <TableHeader>
@@ -106,6 +68,51 @@ export function PackagingView({ requirements }: PackagingViewProps) {
                   </TableRow>
                 </TableBody>
               </Table>
+            </div>
+
+            {/* Daily breakdown - now collapsible */}
+            <div className="border-t pt-4">
+              <h3 className="font-semibold mb-3">Tägliche Aufschlüsselung</h3>
+              <Accordion type="multiple" className="w-full">
+                {Object.entries(groupedByDate).map(([date, dateRequirements]) => {
+                  const dailyTotal = dateRequirements.reduce((sum, req) => sum + req.quantity, 0);
+                  
+                  return (
+                    <AccordionItem key={date} value={date}>
+                      <AccordionTrigger>
+                        <div className="flex justify-between items-center w-full pr-4">
+                          <span className="font-semibold">
+                            {format(parseISO(date), 'dd.MM.yyyy', { locale: de })}
+                          </span>
+                          <Badge variant="secondary">
+                            Gesamt: {dailyTotal}
+                          </Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Packmitteltyp</TableHead>
+                              <TableHead className="text-right">Menge</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {dateRequirements.map((req, index) => (
+                              <TableRow key={index}>
+                                <TableCell>{req.packagingType}</TableCell>
+                                <TableCell className="text-right">
+                                  <Badge variant="outline">{req.quantity}</Badge>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
             </div>
           </div>
         )}
