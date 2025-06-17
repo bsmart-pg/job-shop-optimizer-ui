@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from 'react';
 import { Job } from '@/lib/types';
 import { PackagingView } from './PackagingView';
@@ -6,7 +5,7 @@ import { CarrierView } from './CarrierView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { calculateDailyPackagingNeeds, calculateDailyCarrierNeeds } from '@/lib/utils/packagingUtils';
 import { DateFilterControls } from './DateFilterControls';
-import { isWithinInterval, parseISO } from 'date-fns';
+import { isWithinInterval, parseISO, isSameDay, startOfDay, endOfDay } from 'date-fns';
 
 interface LeergutViewProps {
   jobs: Job[];
@@ -27,7 +26,17 @@ export function LeergutView({ jobs }: LeergutViewProps) {
       }
 
       const jobDate = parseISO(job.startProductionDateTime);
-      return isWithinInterval(jobDate, { start: startDate, end: endDate });
+      
+      // If start and end dates are the same, check if job is on that specific day
+      if (isSameDay(startDate, endDate)) {
+        return isSameDay(jobDate, startDate);
+      }
+      
+      // Otherwise, check if job is within the date range (inclusive)
+      return isWithinInterval(jobDate, { 
+        start: startOfDay(startDate), 
+        end: endOfDay(endDate) 
+      });
     });
   }, [jobs, startDate, endDate]);
 
