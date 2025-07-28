@@ -137,12 +137,12 @@ const Index = () => {
               <DelayedJobs jobs={schedule.jobs} />
               <StockDoneJobs jobs={schedule.stockDoneJobs || []} />
               <PartiallyStockDoneJobs jobs={schedule.partiallyStockDoneJobs || []} />
-              <UnfulfillableJobs jobs={schedule.unfulfillableJobs || []} />
               <UnassignedJobs jobs={schedule.jobs} />
               <ExcludedJobs 
                 jobs={schedule.excludedJobs} 
                 onJobsUpdated={refreshSchedule} 
               />
+              <UnfulfillableJobs jobs={schedule.unfulfillableJobs || []} />
             </>
           )}
         </>
