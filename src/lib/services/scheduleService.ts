@@ -147,3 +147,19 @@ export const setNightshift = async (enabled: boolean): Promise<void> => {
     throw error;
   }
 };
+
+export const fixCurrentPlanByLines = async (lineNames: string[]): Promise<void> => {
+  try {
+    await fetchWithTimeout('/api/schedule/fixCurrentPlanByLines', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(lineNames),
+    });
+    cachedSchedule = null; // Clear cache to get updated data after fixing lines
+  } catch (error) {
+    console.error("Failed to fix current plan by lines:", error);
+    throw error;
+  }
+};

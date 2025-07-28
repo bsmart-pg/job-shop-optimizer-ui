@@ -88,6 +88,7 @@ const Index = () => {
               onViewChange={setSelectedView}
               workCalendarFromDate={workCalendarFromDate}
               workCalendarToDate={workCalendarToDate}
+              lines={schedule.lines || []}
             />
             
             {solving ? (

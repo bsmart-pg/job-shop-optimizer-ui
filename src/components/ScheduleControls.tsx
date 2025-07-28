@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { fetchWithTimeout } from "@/lib/utils/fetchUtils";
 import { Spinner } from "@/components/Spinner";
 import { resetSchedule } from "@/lib/services/scheduleService";
+import { FixLinesButton } from "@/components/FixLinesButton";
 
 interface ScheduleControlsProps {
   score: string | null;
@@ -26,6 +27,7 @@ interface ScheduleControlsProps {
   onViewChange: (view: string) => void;
   workCalendarFromDate: string | null;
   workCalendarToDate: string | null;
+  lines: Array<{ id: string; name: string }>;
 }
 
 export function ScheduleControls({
@@ -39,6 +41,7 @@ export function ScheduleControls({
   onViewChange,
   workCalendarFromDate,
   workCalendarToDate,
+  lines,
 }: ScheduleControlsProps) {
   const [nightshift, setNightshift] = useState<boolean>(false);
   const [savingNightshift, setSavingNightshift] = useState<boolean>(false);
@@ -133,6 +136,12 @@ export function ScheduleControls({
             <Download className="h-4 w-4 mr-2" />
             Exportieren
           </Button>
+
+          <FixLinesButton
+            lines={lines}
+            onFixComplete={onRefresh}
+            disabled={loading}
+          />
           
           {loading ? (
             <Skeleton className="h-9 w-32" />
