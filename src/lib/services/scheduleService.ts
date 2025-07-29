@@ -2,6 +2,7 @@ import { Schedule } from "../types";
 import { fetchWithTimeout } from "../utils/fetchUtils";
 import { getMockSchedule } from "./mockData";
 import { mergeConsecutiveJobs } from "../scheduleUtils";
+import { format } from "date-fns";
 
 // Cache management
 let cachedSchedule: Schedule | null = null;
@@ -152,7 +153,7 @@ export const fixCurrentPlanByLines = async (lineNames: string[], date?: Date): P
   try {
     const payload = {
       lineNames,
-      date: date?.toISOString()
+      date: date ? format(date, 'yyyy-MM-dd') : undefined
     };
     await fetchWithTimeout('/api/schedule/fixCurrentPlanByLines', {
       method: "POST",
