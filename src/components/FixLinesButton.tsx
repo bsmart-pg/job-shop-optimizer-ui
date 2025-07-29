@@ -2,10 +2,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Settings } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Settings, CalendarIcon } from "lucide-react";
 import { fixCurrentPlanByLines } from "@/lib/services/scheduleService";
 import { toast } from "@/components/ui/sonner";
 import { Spinner } from "@/components/Spinner";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface FixLinesButtonProps {
   lines: Array<{ id: string; name: string }>;
@@ -16,6 +20,7 @@ interface FixLinesButtonProps {
 export function FixLinesButton({ lines, onFixComplete, disabled }: FixLinesButtonProps) {
   const [open, setOpen] = useState(false);
   const [selectedLines, setSelectedLines] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>();
   const [fixing, setFixing] = useState(false);
 
   const handleLineToggle = (lineName: string, checked: boolean) => {
@@ -42,10 +47,11 @@ export function FixLinesButton({ lines, onFixComplete, disabled }: FixLinesButto
 
     setFixing(true);
     try {
-      await fixCurrentPlanByLines(selectedLines);
+      await fixCurrentPlanByLines(selectedLines, selectedDate);
       toast.success(`Plan für ${selectedLines.length} Linie(n) erfolgreich korrigiert`);
       setOpen(false);
       setSelectedLines([]);
+      setSelectedDate(undefined);
       onFixComplete();
     } catch (error) {
       console.error("Error fixing plan:", error);
@@ -95,6 +101,33 @@ export function FixLinesButton({ lines, onFixComplete, disabled }: FixLinesButto
                 </label>
               </div>
             ))}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Datum auswählen (optional)</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !selectedDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedDate ? format(selectedDate, "dd.MM.yyyy") : "Datum auswählen"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="flex justify-between items-center pt-4 border-t">
