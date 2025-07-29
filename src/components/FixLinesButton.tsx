@@ -63,12 +63,12 @@ export function FixLinesButton({ lines, onFixComplete, disabled }: FixLinesButto
           disabled={disabled}
         >
           <Settings className="h-4 w-4 mr-2" />
-          Fix
+          Linenplan fixen
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Plan für Linien korrigieren</DialogTitle>
+          <DialogTitle>Bisherigen Plan für ausgewählte Linien fixen</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="flex items-center space-x-2 border-b pb-2">
@@ -108,10 +108,10 @@ export function FixLinesButton({ lines, onFixComplete, disabled }: FixLinesButto
               {fixing ? (
                 <span className="flex items-center">
                   <Spinner size="sm" className="mr-2" />
-                  Korrigiere...
+                  fixen...
                 </span>
               ) : (
-                "Plan korrigieren"
+                "Pläne fixen"
               )}
             </Button>
           </div>

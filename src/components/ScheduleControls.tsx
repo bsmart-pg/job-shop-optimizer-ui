@@ -136,12 +136,6 @@ export function ScheduleControls({
             <Download className="h-4 w-4 mr-2" />
             Exportieren
           </Button>
-
-          <FixLinesButton
-            lines={lines}
-            onFixComplete={onRefresh}
-            disabled={loading}
-          />
           
           {loading ? (
             <Skeleton className="h-9 w-32" />
@@ -168,6 +162,11 @@ export function ScheduleControls({
         </div>
 
         <div className="flex items-center gap-4">
+          <FixLinesButton
+            lines={lines}
+            onFixComplete={onRefresh}
+            disabled={loading}
+          />
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="nightshift" 
