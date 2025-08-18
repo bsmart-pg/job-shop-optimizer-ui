@@ -5,6 +5,7 @@ import { RefreshCw, Play, Square, Download, CalendarRange } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TimeframeSelector } from "@/components/TimeframeSelector";
+import { FloorNumberSelector } from "@/components/FloorNumberSelector";
 import { exportToExcel } from "@/lib/excelExport";
 import { toast } from "@/components/ui/sonner";
 import { format, parseISO } from "date-fns";
@@ -162,6 +163,7 @@ export function ScheduleControls({
         </div>
 
         <div className="flex items-center gap-4">
+          <FloorNumberSelector onFloorNumberSet={onRefresh} />
           <FixLinesButton
             lines={lines}
             onFixComplete={onRefresh}
