@@ -167,7 +167,7 @@ export function ScheduleControls({
             onFixComplete={onRefresh}
             disabled={loading}
           />
-          <div className="flex items-center space-x-2">
+          {/* <div className="flex items-center space-x-2">
             <Checkbox 
               id="nightshift" 
               checked={nightshift} 
@@ -179,7 +179,7 @@ export function ScheduleControls({
             >
               Nachtschicht aktivieren
             </label>
-          </div>
+          </div> */}
           <Button 
             variant="outline" 
             size="sm"

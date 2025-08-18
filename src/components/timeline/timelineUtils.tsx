@@ -7,7 +7,13 @@ import { renderToString } from 'react-dom/server';
 export function createTimelineGroups(groups: DataSet<any>, lines: Line[], jobs: Job[], view: 'byLine' | 'byJob') {
   if (view === 'byLine') {
     // Line view groups
-    lines.forEach(line => {
+    let lineData
+    if(!lines){
+      lineData = []
+    }else{
+      lineData = lines
+    }
+    lineData.forEach(line => {
       const unavailableClass = line.lineAvailable === false ? ' timeline-group-unavailable' : '';
       groups.add({
         id: line.id,

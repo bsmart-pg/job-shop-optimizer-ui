@@ -18,14 +18,19 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
   try {
     const response = await fetchWithTimeout('/api/schedule');
     const data = await response.json();
-    
-    console.log("Original jobs before merging:", data.jobs.length);
+    let jobdata
+    if(!data.jobs){
+      jobdata = [];
+    }else{
+      jobdata = data.jobs;
+    }
+    console.log("Original jobs before merging:", jobdata.length);
     
     // Count jobs per line before merging
     const lineCountBefore: Record<string, number> = {};
     const dueDateCountBefore: Record<string, number> = {};
     
-    data.jobs.forEach((job: any) => {
+    jobdata.forEach((job: any) => {
       if (job.line) {
         const lineId = job.line.id;
         lineCountBefore[lineId] = (lineCountBefore[lineId] || 0) + 1;
@@ -40,7 +45,7 @@ export const fetchSchedule = async (skipCache = false, useMock = false): Promise
     console.log("Jobs per line before merging:", lineCountBefore);
     console.log("Jobs per due date before merging:", dueDateCountBefore);
     
-    const mergedJobs = mergeConsecutiveJobs(data.jobs);
+    const mergedJobs = mergeConsecutiveJobs(jobdata);
     
     console.log("Merged jobs after processing:", mergedJobs.length);
     

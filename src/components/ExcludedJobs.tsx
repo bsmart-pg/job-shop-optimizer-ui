@@ -26,10 +26,17 @@ export function ExcludedJobs({ jobs, onJobsUpdated }: ExcludedJobsProps) {
   const itemsPerPage = 9;
   
   // Memoize the filtered and merged jobs list
+  let jobdata
+  if(!jobs){
+    jobdata = []
+  } else{
+    jobdata = jobs
+  }
+
   const excludedJobs = useMemo(() => {
-    const filtered = jobs.filter(job => job.line === null || !job.startProductionDateTime);
+    const filtered = jobdata.filter(job => job.line === null || !job.startProductionDateTime);
     return mergeConsecutiveJobs(filtered);
-  }, [jobs]);
+  }, [jobdata]);
   
   const totalPages = Math.ceil(excludedJobs.length / itemsPerPage);
   

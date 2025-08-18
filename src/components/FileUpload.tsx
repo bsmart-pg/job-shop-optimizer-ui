@@ -40,7 +40,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
 
   const handleUpload = async () => {
     // Check if all files are selected
-    if (!masterDataFile || !callOffsFile || !initialSetupFile) {
+    if (!masterDataFile || !callOffsFile ) {
       setError('Bitte wählen Sie alle drei Dateien aus');
       return;
     }
@@ -52,9 +52,16 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
       // Create new File objects with the required names
       const renamedMasterData = new File([masterDataFile], "masterdata.xlsx", { type: masterDataFile.type });
       const renamedCallOffs = new File([callOffsFile], "calloffs.xlsx", { type: callOffsFile.type });
-      const renamedInitialSetup = new File([initialSetupFile], "initial_setup.xlsx", { type: initialSetupFile.type });
+      let renamedInitialSetup
+      if (initialSetupFile){
+        renamedInitialSetup = new File([initialSetupFile], "initial_setup.xlsx", { type: initialSetupFile.type });
+        await uploadFiles([renamedMasterData, renamedCallOffs, renamedInitialSetup]);
+      } else {
+        await uploadFiles([renamedMasterData, renamedCallOffs]);
+      }
       
-      await uploadFiles([renamedMasterData, renamedCallOffs, renamedInitialSetup]);
+      
+      
       
       toast({
         title: "Success",
@@ -156,7 +163,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
         <div className="flex justify-end mt-6">
           <Button 
             onClick={handleUpload} 
-            disabled={!masterDataFile || !callOffsFile || !initialSetupFile || uploading}
+            disabled={!masterDataFile || !callOffsFile || uploading}
           >
             {uploading ? (
               <>
