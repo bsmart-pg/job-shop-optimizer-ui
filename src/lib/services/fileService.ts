@@ -42,3 +42,24 @@ export const setTimeframe = async (startDate: string, endDate: string): Promise<
     throw error;
   }
 };
+
+export const setFloorNumber = async (floorNumber: string): Promise<void> => {
+  try {
+    const response = await fetchWithTimeout('/api/schedule/setFloorNumber', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        floorNumber
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to set Floor Number');
+    }
+  } catch (error) {
+    console.error("Failed to set Floor Number:", error);
+    throw error;
+  }
+};
