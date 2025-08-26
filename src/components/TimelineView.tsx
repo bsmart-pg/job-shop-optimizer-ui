@@ -30,19 +30,25 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
   const [height, setHeight] = useState('500px');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   
-  // Pagination for job view
+  // Pagination for both views
   const [currentPage, setCurrentPage] = useState(1);
+  const [linesCurrentPage, setLinesCurrentPage] = useState(1);
   const jobsPerPage = 20; // Number of jobs to show per page
+  const linesPerPage = 10; // Number of lines to show per page
   
-  // Get paginated jobs if viewing by job
+  // Get paginated data based on view
   const paginatedJobs = view === 'byJob' 
     ? jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage) 
     : jobs;
     
-  // Calculate total pages for job view
+  const paginatedLines = view === 'byLine'
+    ? lines.slice((linesCurrentPage - 1) * linesPerPage, linesCurrentPage * linesPerPage)
+    : lines;
+    
+  // Calculate total pages
   const totalPages = view === 'byJob' 
     ? Math.ceil(jobs.length / jobsPerPage)
-    : 1;
+    : Math.ceil(lines.length / linesPerPage);
 
   useEffect(() => {
     // Only create timeline if it doesn't exist yet
@@ -134,11 +140,16 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
 
   useEffect(() => {
     // Reset to page 1 when view changes
-    if (view === 'byJob') {
-      setCurrentPage(1);
-    }
+    setCurrentPage(1);
+    setLinesCurrentPage(1);
     // Clear selected job when view changes
     setSelectedJob(null);
+    
+    // Clear timeline data when switching views to free memory
+    if (groupsRef.current && itemsRef.current) {
+      groupsRef.current.clear();
+      itemsRef.current.clear();
+    }
   }, [view]);
 
   useEffect(() => {
@@ -148,8 +159,8 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
     groupsRef.current.clear();
     itemsRef.current.clear();
 
-    // Create groups and items using the paginated jobs if in job view
-    createTimelineGroups(groupsRef.current, lines, view === 'byJob' ? paginatedJobs : jobs, view);
+    // Create groups and items using paginated data
+    createTimelineGroups(groupsRef.current, paginatedLines, view === 'byJob' ? paginatedJobs : jobs, view);
     createTimelineItems(itemsRef.current, view === 'byJob' ? paginatedJobs : jobs, view);
 
     // Set window to show the schedule
@@ -173,10 +184,14 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
 
     // Redraw timeline
     timelineRef.current.redraw();
-  }, [lines, paginatedJobs, view, workCalendarFromDate, loading, currentPage]);
+  }, [paginatedLines, paginatedJobs, view, workCalendarFromDate, loading, currentPage, linesCurrentPage]);
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    if (view === 'byJob') {
+      setCurrentPage(page);
+    } else {
+      setLinesCurrentPage(page);
+    }
   };
 
   const formatDuration = (durationInSeconds: number) => {
@@ -202,10 +217,10 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
           />
         </ScrollArea>
         
-        {view === 'byJob' && totalPages > 1 && (
+        {totalPages > 1 && (
           <div className="border-t border-border">
             <PaginationControls 
-              currentPage={currentPage}
+              currentPage={view === 'byJob' ? currentPage : linesCurrentPage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
             />

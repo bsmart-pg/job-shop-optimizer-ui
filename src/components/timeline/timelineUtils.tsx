@@ -36,25 +36,19 @@ export function createTimelineGroups(groups: DataSet<any>, lines: Line[], jobs: 
 }
 
 export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byLine' | 'byJob') {
+  // Batch item creation for better performance
+  const itemsToAdd: any[] = [];
+  
   jobs.forEach(job => {
     if (view === 'byJob') {
-      // Add background items for job timeline to indicate ready-ideal-due ranges
-      items.add({
-        id: `${job.id}_readyToIdealEnd`,
+      // Combine background items into single item to reduce memory usage
+      itemsToAdd.push({
+        id: `${job.id}_background`,
         group: job.id,
         start: job.readyDateTime,
-        end: job.idealEndDateTime,
-        type: "background",
-        className: "bg-green-100/50 dark:bg-green-900/20"
-      });
-      
-      items.add({
-        id: `${job.id}_idealEndToDue`,
-        group: job.id,
-        start: job.idealEndDateTime,
         end: job.dueDateTime,
         type: "background",
-        className: "bg-amber-100/50 dark:bg-amber-900/20"
+        className: "bg-gradient-to-r from-green-100/50 via-amber-100/50 to-red-100/50 dark:from-green-900/20 dark:via-amber-900/20 dark:to-red-900/20"
       });
     }
 
@@ -62,21 +56,17 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
       // Job is assigned and scheduled
       
       // Add cleaning item
-      items.add({
+      itemsToAdd.push({
         id: `${job.id}_cleaning`,
         group: view === 'byLine' ? job.line.id : job.id,
         content: `<div class="timeline-item-content"><span class="timeline-item-text">Rüsten</span></div>`,
         start: job.startCleaningDateTime,
         end: job.startProductionDateTime,
-        className: "cleaning-item",
-        dataAttributes: {
-          'data-start': job.startCleaningDateTime,
-          'data-end': job.startProductionDateTime
-        }
+        className: "cleaning-item"
       });
       
       // Add production item
-      items.add({
+      itemsToAdd.push({
         id: job.id,
         group: view === 'byLine' ? job.line.id : job.id,
         content: `<div class="timeline-item-content cursor-pointer" data-job-id="${job.id}">
@@ -86,19 +76,15 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
         end: job.endDateTime,
         className: isJobOutOfBounds(job) 
           ? "timeline-item error-item" 
-          : "timeline-item normal-item",
-        dataAttributes: {
-          'data-start': job.startProductionDateTime,
-          'data-end': job.endDateTime
-        }
+          : "timeline-item normal-item"
       });
     } else if (view === 'byJob') {
       // Unassigned job - only show in job view
       const estimatedEndTime = new Date(job.readyDateTime);
       estimatedEndTime.setSeconds(estimatedEndTime.getSeconds() + job.duration);
       
-      // Similarly, use HTML string instead of renderToString
-      items.add({
+      // Unassigned job
+      itemsToAdd.push({
         id: job.id,
         group: job.id,
         content: `<div class="timeline-item-content cursor-pointer" data-job-id="${job.id}">
@@ -110,6 +96,11 @@ export function createTimelineItems(items: DataSet<any>, jobs: Job[], view: 'byL
       });
     }
   });
+  
+  // Batch add all items at once for better performance
+  if (itemsToAdd.length > 0) {
+    items.add(itemsToAdd);
+  }
 }
 
 function isJobOutOfBounds(job: Job): boolean {

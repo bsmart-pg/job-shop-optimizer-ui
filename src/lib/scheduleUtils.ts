@@ -56,19 +56,11 @@ export function mergeConsecutiveJobs(jobs: Job[]): Job[] {
       const isSameProduct = currentProductName === lastProductName;
       const isSameDueDate = isSameDueDateTime(lastJobInChain, currentJob);
       
-      // Log the merging decision factors
-      console.log(`Checking jobs for merging: ${lastJobInChain.id} and ${currentJob.id}`);
-      console.log(`- Same product: ${isSameProduct} (${lastProductName} vs ${currentProductName})`);
-      console.log(`- Consecutive times: ${isConsecutive}`);
-      console.log(`- Same due date: ${isSameDueDate} (${lastJobInChain.dueDateTime} vs ${currentJob.dueDateTime})`);
-      
       if (isConsecutive && isSameProduct && isSameDueDate) {
         // Add to current chain
-        console.log(`Merging jobs: ${lastJobInChain.id} and ${currentJob.id}`);
         currentChain.push(currentJob);
       } else {
         // End current chain and start new one
-        console.log(`Cannot merge jobs: ${lastJobInChain.id} and ${currentJob.id}`);
         const mergedJob = mergeJobChain(currentChain);
         if (mergedJob) lineMergedJobs.push(mergedJob);
         currentChain = [currentJob];
@@ -120,7 +112,6 @@ export function mergeUnassignedJobs(jobs: Job[]): Job[] {
       mergedJobs.push(group[0]);
     } else {
       // Multiple jobs with same criteria, merge them
-      console.log(`Merging ${group.length} unassigned jobs with same criteria`);
       
       // Use the first job as a base and update quantity
       const baseJob = { ...group[0] };
@@ -142,8 +133,6 @@ export function mergeUnassignedJobs(jobs: Job[]): Job[] {
       baseJob.name = `${productName} x ${totalQuantity || group.length}`;
       
       mergedJobs.push(baseJob);
-      
-      console.log(`Created merged job: ${baseJob.name} with duration ${totalDuration}`);
     }
   });
   

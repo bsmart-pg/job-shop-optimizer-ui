@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { JobShopHeader } from "@/components/JobShopHeader";
 import { FileUpload } from "@/components/FileUpload";
 import { ScheduleControls } from "@/components/ScheduleControls";
@@ -34,9 +34,13 @@ const Index = () => {
   const [selectedView, setSelectedView] = useState<string>("byLine");
   const [selectedJob, setSelectedJob] = useState<any>(null);
 
-  // Debug log to check schedule data
-  console.log("Schedule data:", schedule);
-  console.log("Partially stock done jobs:", schedule?.partiallyStockDoneJobs);
+  // Memoize processed data to prevent unnecessary recalculations
+  const memoizedJobs = useMemo(() => schedule?.jobs || [], [schedule?.jobs]);
+  const memoizedLines = useMemo(() => schedule?.lines || [], [schedule?.lines]);
+  const memoizedStockDoneJobs = useMemo(() => schedule?.stockDoneJobs || [], [schedule?.stockDoneJobs]);
+  const memoizedPartiallyStockDoneJobs = useMemo(() => schedule?.partiallyStockDoneJobs || [], [schedule?.partiallyStockDoneJobs]);
+  const memoizedExcludedJobs = useMemo(() => schedule?.excludedJobs || [], [schedule?.excludedJobs]);
+  const memoizedUnfulfillableJobs = useMemo(() => schedule?.unfulfillableJobs || [], [schedule?.unfulfillableJobs]);
 
   const handleUploadSuccess = () => {
     resetSchedule();
@@ -69,9 +73,9 @@ const Index = () => {
       ) : schedule ? (
         <>
           {/* Line Configuration - only show when not solving */}
-          {!solving && schedule.lines && schedule.lines.length > 0 && (
+          {!solving && memoizedLines.length > 0 && (
             <LineConfiguration 
-              lines={schedule.lines} 
+              lines={memoizedLines} 
               onConfigurationSaved={refreshSchedule}
             />
           )}
@@ -88,7 +92,7 @@ const Index = () => {
               onViewChange={setSelectedView}
               workCalendarFromDate={workCalendarFromDate}
               workCalendarToDate={workCalendarToDate}
-              lines={schedule.lines || []}
+              lines={memoizedLines}
             />
             
             {solving ? (
@@ -102,8 +106,8 @@ const Index = () => {
               <Tabs value={selectedView} onValueChange={setSelectedView} className="w-full">
                 <TabsContent value="byLine" className="mt-0">
                   <TimelineView 
-                    lines={schedule.lines} 
-                    jobs={schedule.jobs} 
+                    lines={memoizedLines} 
+                    jobs={memoizedJobs} 
                     view="byLine"
                     workCalendarFromDate={schedule.workCalendar.fromDate}
                     loading={false}
@@ -111,15 +115,15 @@ const Index = () => {
                 </TabsContent>
                 <TabsContent value="byJob" className="mt-0">
                   <TimelineView 
-                    lines={schedule.lines} 
-                    jobs={schedule.jobs} 
+                    lines={memoizedLines} 
+                    jobs={memoizedJobs} 
                     view="byJob"
                     workCalendarFromDate={schedule.workCalendar.fromDate}
                     loading={false}
                   />
                 </TabsContent>
                 <TabsContent value="leergut" className="mt-0">
-                  <LeergutView jobs={schedule.jobs} />
+                  <LeergutView jobs={memoizedJobs} />
                 </TabsContent>
               </Tabs>
             )}
@@ -134,16 +138,16 @@ const Index = () => {
                 </div>
               )}
               
-              <OnTimeRate jobs={schedule.jobs} />
-              <DelayedJobs jobs={schedule.jobs} />
-              <StockDoneJobs jobs={schedule.stockDoneJobs || []} />
-              <PartiallyStockDoneJobs jobs={schedule.partiallyStockDoneJobs || []} />
-              <UnassignedJobs jobs={schedule.jobs} />
+              <OnTimeRate jobs={memoizedJobs} />
+              <DelayedJobs jobs={memoizedJobs} />
+              <StockDoneJobs jobs={memoizedStockDoneJobs} />
+              <PartiallyStockDoneJobs jobs={memoizedPartiallyStockDoneJobs} />
+              <UnassignedJobs jobs={memoizedJobs} />
               <ExcludedJobs 
-                jobs={schedule.excludedJobs} 
+                jobs={memoizedExcludedJobs} 
                 onJobsUpdated={refreshSchedule} 
               />
-              <UnfulfillableJobs jobs={schedule.unfulfillableJobs || []} />
+              <UnfulfillableJobs jobs={memoizedUnfulfillableJobs} />
             </>
           )}
         </>
