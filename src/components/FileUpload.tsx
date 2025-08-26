@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Loader2, FileCheck, Upload, X, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { FloorNumberSelector } from '@/components/FloorNumberSelector';
 
 interface FileUploadProps {
   onUploadSuccess: () => void;
@@ -126,6 +127,9 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
   return (
     <Card>
       <CardHeader>
+        <div className="mb-4">
+          <FloorNumberSelector onFloorNumberSet={onUploadSuccess} />
+        </div>
         <CardTitle>Datei-Upload</CardTitle>
       </CardHeader>
       <CardContent>
