@@ -34,7 +34,7 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
   const [currentPage, setCurrentPage] = useState(1);
   const [linesCurrentPage, setLinesCurrentPage] = useState(1);
   const jobsPerPage = 20; // Number of jobs to show per page
-  const linesPerPage = 10; // Number of lines to show per page
+  const linesPerPage = 9; // Number of lines to show per page
   
   // Get paginated data based on view
   const paginatedJobs = view === 'byJob' 
