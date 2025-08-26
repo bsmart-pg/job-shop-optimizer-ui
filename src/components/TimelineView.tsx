@@ -221,7 +221,7 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
           <div className="border-t border-border">
             <div className="space-y-2 p-4">
               <p className="text-sm text-muted-foreground text-center">
-                Seiten durchblättern um weitere den Plan für weitere Linien zu sehen
+                Seiten durchblättern um den Plan für weitere Linien zu sehen.
               </p>
               <PaginationControls 
                 currentPage={view === 'byJob' ? currentPage : linesCurrentPage}
