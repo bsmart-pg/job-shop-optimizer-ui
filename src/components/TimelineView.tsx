@@ -219,11 +219,16 @@ export function TimelineView({ lines, jobs, view, workCalendarFromDate, loading 
         
         {totalPages > 1 && (
           <div className="border-t border-border">
-            <PaginationControls 
-              currentPage={view === 'byJob' ? currentPage : linesCurrentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
+            <div className="space-y-2 p-4">
+              <p className="text-sm text-muted-foreground text-center">
+                Seiten durchblättern um weitere den Plan für weitere Linien zu sehen
+              </p>
+              <PaginationControls 
+                currentPage={view === 'byJob' ? currentPage : linesCurrentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
           </div>
         )}
       </Card>
